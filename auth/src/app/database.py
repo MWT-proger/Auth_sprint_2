@@ -10,7 +10,7 @@ db = SQLAlchemy(metadata=metadata)
 
 
 def init_db(app: Flask):
-    app.config["SQLALCHEMY_DATABASE_URI"] = config.DB.DATABASE_URI
+    app.config["SQLALCHEMY_DATABASE_URI"] = config.DB.URI
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = config.DB.TRACK_MODIFICATIONS
 
     db.init_app(app)

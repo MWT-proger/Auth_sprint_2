@@ -6,10 +6,12 @@ services:
     image: postgres:14-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      - ./postgre/create_schema.sql:/docker-entrypoint-initdb.d/create_schema.sql
     env_file:
       - .env.db
     ports:
-      - "5431:5431"
+      - "5433:5433"
+    command: -p 5433
 
   auth-dev-app:
     build: ./auth
@@ -18,7 +20,7 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       - auth-db
 

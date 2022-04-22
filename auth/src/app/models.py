@@ -5,7 +5,7 @@ from datetime import datetime
 from database import db
 
 
-class DateTimeMixin(db.Model):
+class DateTimeMixin:
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
