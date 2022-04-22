@@ -13,6 +13,7 @@ app = Flask(__name__)
 
 #TODO Временно здесь
 app.config["JWT_SECRET_KEY"] = "super-secret"
+app.config['SECRET_KEY'] = 'super-secret'
 
 jwt = JWTManager(app)
 
