@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 COPY ./src /src
 WORKDIR /usr/src/auth/src
 
-#CMD ["gunicorn", "--chdir", "app", "main:app", "-w", "2", "--threads", "2", "-b", "0.0.0.0:5000"]
+CMD ["gunicorn", "--chdir", "app", "main:app", "-w", "2", "--threads", "2", "-b", "0.0.0.0:5000"]
