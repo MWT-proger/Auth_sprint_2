@@ -3,6 +3,7 @@ from flask_jwt_extended import JWTManager
 from flasgger import Swagger
 
 
+from datastore import init_datastore
 from database import init_db
 from models import *
 from api.v1.account import auth_api
@@ -25,6 +26,7 @@ def hello():
 
 swagger = Swagger(app)
 init_db(app)
+init_datastore(app)
 
 app.app_context().push()
 db.create_all()
