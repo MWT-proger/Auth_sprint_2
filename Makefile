@@ -20,7 +20,7 @@ run:
 # Блок разработки
 
 run_dev:
-	docker-compose -f docker-compose.dev.yml up --build
+	docker-compose -f docker-compose.dev.yml up --build -d
 
 stop_dev:
 	docker-compose -f docker-compose.dev.yml stop
