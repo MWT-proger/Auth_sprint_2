@@ -15,5 +15,11 @@ class DatabaseConfig:
     SCHEMA = "content"
 
 
+class SecurityConfig:
+    SALT = "salt"
+    HASH = "sha512_crypt"
+
+
 class Config:
     DB: DatabaseConfig = DatabaseConfig()
+    security: SecurityConfig = SecurityConfig()
