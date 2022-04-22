@@ -1,5 +1,5 @@
-from datetime import datetime
 from uuid import uuid4
+from datetime import datetime
 
 from database import db
 from flask_security import RoleMixin, UserMixin
