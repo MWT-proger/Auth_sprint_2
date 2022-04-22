@@ -1,6 +1,6 @@
+from config import Config
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from config import Config
 from sqlalchemy import MetaData
 
 config = Config()
