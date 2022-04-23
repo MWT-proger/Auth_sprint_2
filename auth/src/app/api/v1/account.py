@@ -1,15 +1,12 @@
-from flask import Flask, jsonify, request
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager, create_refresh_token
-from flask import Blueprint
-
-from database import db
-from models import User
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import (get_jwt_identity, jwt_required, create_access_token)
+from schemes.user import UserLoginSchema, UserRegisterSchema
 from services.user import UserService
-from schemes.user import UserRegisterSchema, UserLoginSchema
-from utils.validate import validate_login_and_password
+from services.account import AccountService
 
 auth_api = Blueprint("auth_api", __name__)
 user_service = UserService()
+account_service = AccountService()
 
 
 # @auth_api.route("/login", methods=["POST"])
@@ -108,14 +105,13 @@ def login_view():
                 # TODO Необходимо добавить Login History
                 # TODO Необходимо сохранять в Redis token
                 # TODO Необходимо проверять существует ли refresh (надо ли его тогда пересоздавать)
-                access_token = create_access_token(identity="example_user", fresh=True)
-                refresh_token = create_refresh_token(identity="example_user")
-                return jsonify(access_token=access_token, refresh_token=refresh_token)
+                access, refresh = account_service.get_tokens_pair(user)
+                return jsonify(access_token=access, refresh_token=refresh)
             except Exception as e:
                 return {
-                    "error": "Something went wrong",
-                    "message": str(e)
-                }, 500
+                           "error": "Something went wrong",
+                           "message": str(e)
+                       }, 500
 
         return {
                    "message": "Error fetching auth token!, invalid email or password",
@@ -169,7 +165,7 @@ def registration_view():
         if user:
             return {
                        "message": "Registration Success",
-                   }, 404
+                   }, 200
 
         return {
                    "message": "Error fetching auth token!, invalid email or password",
@@ -184,3 +180,11 @@ def registration_view():
                    "data": None
                }, 500
 
+
+@auth_api.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh_token():
+    identity = get_jwt_identity()
+    access = create_access_token(identity=identity)
+
+    return jsonify(access_token=access)

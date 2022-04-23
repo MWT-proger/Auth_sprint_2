@@ -1,8 +1,7 @@
-from flask import Flask
-from werkzeug.security import generate_password_hash, check_password_hash
-
-from models import User
 from database import db
+from datastore import datastore
+from models import RoleEnum, User
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 class UserService:
@@ -13,8 +12,8 @@ class UserService:
 
     def create(self, login: str, email: str, password: str):
         hashed_password = generate_password_hash(password)
-        new_user = self.model(login=login, _password=hashed_password, email=email)
-        db.session.add(new_user)
+        new_user = datastore.create_user(login=login, email=email, _password=hashed_password)
+        datastore.add_role_to_user(new_user, RoleEnum.user.value)
         db.session.commit()
         return new_user
 
@@ -31,6 +30,3 @@ class UserService:
         if not user or not check_password_hash(user._password, password):
             return
         return user
-
-
-

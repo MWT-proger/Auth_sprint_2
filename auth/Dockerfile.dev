@@ -13,3 +13,6 @@ RUN pip install -r requirements.txt
 
 COPY ./src /src
 WORKDIR /usr/src/auth/src
+
+ENTRYPOINT flask db init
+ENTRYPOINT python app/main.py

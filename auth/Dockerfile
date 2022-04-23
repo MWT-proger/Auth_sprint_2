@@ -8,6 +8,8 @@ ENV PYTHONUNBUFFERED 1
 
 RUN pip install --upgrade pip
 
+CMD flask db init && flask db migrate && flask db upgrade
+
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 

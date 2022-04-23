@@ -10,5 +10,8 @@ Flask-Security==3.0.0
 flask-jwt-extended==4.3.1
 flasgger==0.9.5
 Werkzeug==2.1.1
+marshmallow==3.15.0
 flask-marshmallow==0.14.0
 marshmallow-sqlalchemy==0.22.3
+Flask-Migrate==3.1.0
+Flask-Script==2.0.6

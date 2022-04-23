@@ -1,5 +1,5 @@
-from settings import Settings
 from flask_marshmallow import Marshmallow
+from settings import Settings
 
 settings = Settings()
 
@@ -21,9 +21,11 @@ class SecurityConfig:
     HASH = "sha512_crypt"
 
 
+class JWTSettings:
+    SECRET_KEY = "super-secret"
+
+
 class Config:
+    JWT: JWTSettings = JWTSettings()
     DB: DatabaseConfig = DatabaseConfig()
     security: SecurityConfig = SecurityConfig()
-
-
-ma = Marshmallow()
