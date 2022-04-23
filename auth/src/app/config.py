@@ -1,4 +1,5 @@
 from settings import Settings
+from flask_marshmallow import Marshmallow
 
 settings = Settings()
 
@@ -23,3 +24,6 @@ class SecurityConfig:
 class Config:
     DB: DatabaseConfig = DatabaseConfig()
     security: SecurityConfig = SecurityConfig()
+
+
+ma = Marshmallow()

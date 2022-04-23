@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from flasgger import Swagger
+from flask_marshmallow import Marshmallow
 
 
 from datastore import init_datastore
@@ -11,11 +12,13 @@ from api.v1.account import auth_api
 app = Flask(__name__)
 
 
-#TODO Временно здесь
+# TODO Временно здесь
 app.config["JWT_SECRET_KEY"] = "super-secret"
 app.config['SECRET_KEY'] = 'super-secret'
 
 jwt = JWTManager(app)
+ma = Marshmallow(app)
+
 
 app.register_blueprint(auth_api, url_prefix='/auth/api/v1/')
 
@@ -28,6 +31,7 @@ def hello():
 swagger = Swagger(app)
 init_db(app)
 init_datastore(app)
+
 
 app.app_context().push()
 db.create_all()
