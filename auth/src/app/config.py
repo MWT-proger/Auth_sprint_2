@@ -1,16 +1,15 @@
-from flask_marshmallow import Marshmallow
-from settings import Settings
+import os
 
-settings = Settings()
+from datetime import timedelta
 
 
 class DatabaseConfig:
     URI = "postgresql://{user}:{password}@{host}:{port}/{database_name}".format(
-        user=settings.POSTGRES_USER,
-        password=settings.POSTGRES_PASSWORD,
-        host=settings.POSTGRES_HOST,
-        port=settings.POSTGRES_PORT,
-        database_name=settings.POSTGRES_NAME
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT")),
+        database_name=os.getenv("DB_NAME"),
     )
     TRACK_MODIFICATIONS = False
     SCHEMA = "content"
@@ -21,11 +20,19 @@ class SecurityConfig:
     HASH = "sha512_crypt"
 
 
-class JWTSettings:
+class JWTConfig:
     SECRET_KEY = "super-secret"
+    ACCESS_EXPIRE = timedelta(minutes=5)
+    REFRESH_EXPIRE = timedelta(days=15)
+
+
+class RedisConfig:
+    HOST = os.getenv("REDIS_HOST")
+    PORT = os.getenv("REDIS_PORT")
 
 
 class Config:
-    JWT: JWTSettings = JWTSettings()
+    JWT: JWTConfig = JWTConfig()
     DB: DatabaseConfig = DatabaseConfig()
     security: SecurityConfig = SecurityConfig()
+    REDIS: RedisConfig = RedisConfig()

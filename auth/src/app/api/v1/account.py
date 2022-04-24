@@ -3,10 +3,13 @@ from flask_jwt_extended import (get_jwt_identity, jwt_required, create_access_to
 from schemes.user import UserLoginSchema, UserRegisterSchema
 from services.user import UserService
 from services.account import AccountService
+from services.storage import token_storage
+from config import Config
 
 auth_api = Blueprint("auth_api", __name__)
 user_service = UserService()
 account_service = AccountService()
+config = Config()
 
 
 # @auth_api.route("/login", methods=["POST"])
@@ -188,3 +191,14 @@ def refresh_token():
     access = create_access_token(identity=identity)
 
     return jsonify(access_token=access)
+
+
+@auth_api.route("/logout", methods=["POST"])
+@jwt_required()
+def logout():
+    # TODO ДОБАВИТЬ УДАЛЕНИЕ ТОКЕНА ИЗ БАЗЫ
+    user_id = get_jwt_identity()
+    access_token = request.headers.get("Authorization").split()[1]
+    print(token_storage.is_valid_access(access_token))
+    token_storage.add_invalid_access(access_token, user_id, config.JWT.ACCESS_EXPIRE)
+    return jsonify({"message": "Success logout."}), 401

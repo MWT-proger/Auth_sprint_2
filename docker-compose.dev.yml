@@ -27,5 +27,11 @@ services:
     depends_on:
       - auth-db
 
+  auth-dev-redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
 volumes:
   postgres_auth_data:

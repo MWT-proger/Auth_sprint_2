@@ -59,7 +59,7 @@ class RolesUsers(db.Model):
     UniqueConstraint("user_id", "role_id", name="role_user_inx")
 
 
-class AuthHistory(db.Model):
+class LoginHistory(db.Model):
     __tablename__ = "auth_history"
 
     id = db.Column(UUID(as_uuid=True), primary_key=True)

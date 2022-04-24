@@ -22,6 +22,13 @@ services:
       - .env
     depends_on:
       - auth-db
+      - auth-redis
+
+  auth-redis:
+    image: redis:alpine
+    restart: always
+    expose:
+      - "6379"
 
 volumes:
   postgres_data:
