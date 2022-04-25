@@ -14,7 +14,7 @@ class TokenStorage:
         self._execute(self.redis.set, name=token, value=str(user_id), ex=expire)
 
     def is_valid_access(self, token):
-        return bool(self._execute(self.redis.exists, token))
+        return not bool(self._execute(self.redis.exists, token))
 
     @staticmethod
     def _execute(method, *args, **kwargs):

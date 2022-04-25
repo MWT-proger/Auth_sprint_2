@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from flask_jwt_extended import (get_jwt_identity, jwt_required, create_access_token)
 from schemes.user import UserLoginSchema, UserRegisterSchema
 from services.user import UserService
@@ -91,6 +91,8 @@ def login_view():
 
         login = data.get("login")
         password = data.get("password")
+        print(login)
+        print(password)
 
         try:
             UserLoginSchema().load({"login": login, "_password": password})
@@ -108,7 +110,7 @@ def login_view():
                 # TODO Необходимо добавить Login History
                 # TODO Необходимо сохранять в Redis token
                 # TODO Необходимо проверять существует ли refresh (надо ли его тогда пересоздавать)
-                access, refresh = account_service.get_tokens_pair(user)
+                access, refresh = account_service.get_tokens_pair(user.id)
                 return jsonify(access_token=access, refresh_token=refresh)
             except Exception as e:
                 return {
@@ -196,9 +198,7 @@ def refresh_token():
 @auth_api.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
-    # TODO ДОБАВИТЬ УДАЛЕНИЕ ТОКЕНА ИЗ БАЗЫ
+    # TODO ДОБАВИТЬ УДАЛЕНИЕ REFRESH ТОКЕНА ИЗ БАЗЫ
     user_id = get_jwt_identity()
-    access_token = request.headers.get("Authorization").split()[1]
-    print(token_storage.is_valid_access(access_token))
-    token_storage.add_invalid_access(access_token, user_id, config.JWT.ACCESS_EXPIRE)
-    return jsonify({"message": "Success logout."}), 401
+    token_storage.add_invalid_access(g.access_token, user_id, config.JWT.ACCESS_EXPIRE)
+    return jsonify({"message": "Success logout."}), 200
