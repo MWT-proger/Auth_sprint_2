@@ -62,8 +62,18 @@ class RolesUsers(db.Model):
 class LoginHistory(db.Model):
     __tablename__ = "auth_history"
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True)
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"))
     datetime = db.Column(db.DateTime, default=datetime.now())
     user_agent = db.Column(db.Text, nullable=False)
-    ip = db.Column(db.String(64), nullable=False)
+    ip = db.Column(db.String(64), nullable=True)
+
+
+class AuthToken(db.Model):
+    __tablename__ = "auth_token"
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"))
+    user_agent = db.Column(db.Text, nullable=False)
+    refresh_token = db.Column(db.Text, nullable=False)
+

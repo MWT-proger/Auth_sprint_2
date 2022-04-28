@@ -25,8 +25,5 @@ class UserService:
         user = self.model.query.filter_by(email=email).first()
         return user
 
-    def login(self, login: str, password: str):
-        user = self.get_by_login(login)
-        if not user or not check_password_hash(user._password, password):
-            return
-        return user
+
+get_user_service = UserService()
