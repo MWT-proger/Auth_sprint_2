@@ -122,7 +122,7 @@ def login_view():
                    "message": "Error fetching auth token!, invalid email or password",
                    "data": None,
                    "error": "Unauthorized"
-               }, 404
+               }, 401
 
     except Exception as e:
         return {
@@ -191,7 +191,7 @@ def registration_view():
 def refresh_token():
     identity = get_jwt_identity()
     access = create_access_token(identity=identity)
-
+    # TODO ДОБАВИТЬ UPDATE REFRESH ТОКЕНА В БД
     return jsonify(access_token=access)
 
 
@@ -202,3 +202,5 @@ def logout():
     user_id = get_jwt_identity()
     token_storage.add_invalid_access(g.access_token, user_id, config.JWT.ACCESS_EXPIRE)
     return jsonify({"message": "Success logout."}), 200
+
+# TODO Повторить logout, только для всех устройств

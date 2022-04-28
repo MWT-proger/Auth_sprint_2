@@ -6,7 +6,8 @@ services:
     image: postgres:14-alpine
     volumes:
       - postgres_auth_data:/var/lib/postgresql/data/
-      - ./postgre/create_schema.sql:/docker-entrypoint-initdb.d/create_schema.sql
+      - ./postgre/test_create_schema.sql:/docker-entrypoint-initdb.d/create_schema.sql
+      - ./postgre/roles.sql:/docker-entrypoint-initdb.d/roles.sql
     env_file:
       - .env.db
     ports:
