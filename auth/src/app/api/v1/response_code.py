@@ -23,3 +23,21 @@ class InvalidAPIUsage(Exception):
 @bp_errors.app_errorhandler(InvalidAPIUsage)
 def invalid_api_usage(e):
     return jsonify(e.to_dict()), e.status_code
+
+
+class ResponseErrorApi:
+    invalid_class = InvalidAPIUsage
+
+    def __init__(self):
+        pass
+
+    def error_500(self, e: str = None):
+        if e:
+            raise self.invalid_class("Что-то пошло не так", status_code=500, payload={"error": e})
+        raise self.invalid_class("Что-то пошло не так", status_code=500)
+
+    def error_400(self, e):
+        raise self.invalid_class("Не верно предоставленны данные", status_code=400, payload={"error": e})
+
+    def error_basic(self, message, code, error: str = None):
+        raise self.invalid_class(message, status_code=code, payload={"error": error})
