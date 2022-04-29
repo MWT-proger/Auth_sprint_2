@@ -11,6 +11,7 @@ from services.user import get_user_service as user_service
 from services.account import get_account_service as account_service
 from services.auth_token import get_auth_token_service as auth_token_service
 from config import Config
+from api.v1.response_code import InvalidAPIUsage
 
 auth_api = Blueprint("auth_api", __name__)
 config = Config()
@@ -83,110 +84,63 @@ def protected():
 # TODO Необходимо добавить файл yaml
 # TODO Перенести message в constant
 def login_view():
+    data = request.json
+
+    if not data:
+        raise InvalidAPIUsage("Не верно предоставленны данные пользователя", status_code=400)
+
+    login = data.get("login")
+    password = data.get("password")
+
     try:
-        data = request.json
-
-        if not data:
-            return {
-                       "message": "Пожалуйста, предоставьте данные пользователя",
-                       "data": None,
-                       "error": "Bad request"
-                   }, 400
-
-        login = data.get("login")
-        password = data.get("password")
-        print(login)
-        print(password)
-
-        try:
-            UserLoginSchema().load({"login": login, "_password": password})
-        except Exception as e:
-            return {
-                       "message": "Пожалуйста, предоставьте данные пользователя",
-                       "error": str(e),
-                       "data": None
-                   }, 400
-        login = account_service.login(login=login, password=password, user_agent=request.user_agent)
-        if login:
-            try:
-                # + Необходимо добавить Login History
-                # + Необходимо сохранять в Redis token
-                # + Необходимо проверять существует ли refresh (надо ли его тогда пересоздавать)
-                access, refresh = login
-                return jsonify(access_token=access, refresh_token=refresh)
-
-            except Exception as e:
-                return {
-                           "error": "Something went wrong",
-                           "message": str(e)
-                       }, 500
-
-        return {
-                   "message": "Error fetching auth token!, invalid email or password",
-                   "data": None,
-                   "error": "Unauthorized"
-               }, 401
-
+        UserLoginSchema().load({"login": login, "_password": password})
     except Exception as e:
-        return {
-                   "message": "Something went wrong!",
-                   "error": str(e),
-                   "data": None
-               }, 500
+        raise InvalidAPIUsage("Не верно предоставленны данные пользователя", status_code=400, payload={"error": str(e)})
+    try:
+        login = account_service.login(login=login, password=password, user_agent=request.user_agent)
+    except Exception as e:
+        raise InvalidAPIUsage("Что-то пошло не так", status_code=500, payload={"error": str(e)})
+    if login:
+        try:
+            access, refresh = login
+            return jsonify(access_token=access, refresh_token=refresh)
+
+        except Exception as e:
+            raise InvalidAPIUsage("Что-то пошло не так", status_code=500, payload={"error": str(e)})
+
+    raise InvalidAPIUsage("Неверный логин или пароль", status_code=401)
 
 
 @auth_api.route("/registration", methods=["POST"])
 def registration_view():
+    data = request.json
+
+    if not data:
+        raise InvalidAPIUsage("Необходимо предоставить данные пользователя", status_code=400)
+
+    login = data.get("login")
+    password = data.get("password")
+    email = data.get("email")
     try:
-        data = request.json
-
-        if not data:
-            return {
-                       "message": "Пожалуйста, предоставьте данные пользователя",
-                       "data": None,
-                       "error": "Bad request"
-                   }, 400
-
-        login = data.get("login")
-        password = data.get("password")
-        email = data.get("email")
-        try:
-            UserRegisterSchema().load({"login": login,
-                                       "email": email,
-                                       "_password": password})
-        except Exception as e:
-            return {
-                       "message": "Пожалуйста, предоставьте данные пользователя",
-                       "error": str(e),
-                       "data": None
-                   }, 400
-
-        is_existed_email = user_service.get_by_email(email)
-        if is_existed_email:
-            return dict(message="Invalid data", data=None, error="Пользователь с таким email же зарегистрирован"), 400
-
-        is_existed_login = user_service.get_by_login(login)
-        if is_existed_login:
-            return dict(message="Invalid data", data=None, error="Пользователь с таким login же зарегистрирован"), 400
-
-        user = user_service.create(login=login, email=email, password=password)
-        if user:
-            return {
-                       "message": "Registration Success",
-                   }, 200
-
-        return {
-                   "message": "Error fetching auth token!, invalid email or password",
-                   "data": None,
-                   "error": "Unauthorized"
-               }, 404
-
+        UserRegisterSchema().load({"login": login,
+                                   "email": email,
+                                   "_password": password})
     except Exception as e:
-        return {
-                   "message": "Something went wrong!",
-                   "error": str(e),
-                   "data": None
-               }, 500
+        raise InvalidAPIUsage("Не верно предоставленны данные", status_code=400, payload={"error": str(e)})
+
+    is_existed_email = user_service.get_by_email(email)
+    if is_existed_email:
+        raise InvalidAPIUsage("Пользователь с таким email же зарегистрирован", status_code=400)
+
+    is_existed_login = user_service.get_by_login(login)
+    if is_existed_login:
+        raise InvalidAPIUsage("Пользователь с таким login же зарегистрирован", status_code=400)
+
+    user = user_service.create(login=login, email=email, password=password)
+    if user:
+        return jsonify(message="Registration Success")
+
+    raise InvalidAPIUsage("Что-то пошло не так", status_code=500)
 
 
 @auth_api.route("/refresh", methods=["POST"])
