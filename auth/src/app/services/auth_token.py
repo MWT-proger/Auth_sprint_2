@@ -1,4 +1,6 @@
 from database import db
+
+from flask_jwt_extended import create_refresh_token
 from models import User, LoginHistory, AuthToken
 
 
@@ -17,9 +19,21 @@ class AuthTokenService:
             self.db_session.add(token)
         return token
 
-    def get_refresh_token(self, user_id: str, user_agent: str = None, all: bool = None):
+    def update_refresh_token(self, user_id: str, refresh_token: str):
+        token = self.get_refresh_token(user_id=user_id, refresh=refresh_token)
+        if not token:
+            return
+        new_refresh = create_refresh_token(identity=user_id)
+        token.refresh_token = new_refresh
+        self.db_session.add(token)
+        self.db_session.commit()
+        return new_refresh
+
+    def get_refresh_token(self, user_id: str, user_agent: str = None, all: bool = None, refresh: str = None):
         if all:
             query = self.model.query.filter_by(user_id=user_id)
+        elif refresh:
+            query = self.model.query.filter_by(user_id=user_id, refresh_token=refresh).first()
         else:
             query = self.model.query.filter_by(user_id=user_id, user_agent=user_agent.string).first()
         return query

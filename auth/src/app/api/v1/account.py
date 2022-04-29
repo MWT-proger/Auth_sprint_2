@@ -156,9 +156,16 @@ auth_api.add_url_rule('/registration', view_func=LoginView.as_view('user'), meth
 @jwt_required(refresh=True)
 def refresh_token():
     identity = get_jwt_identity()
-    access = create_access_token(identity=identity)
-    # TODO ДОБАВИТЬ UPDATE REFRESH ТОКЕНА В БД
-    return jsonify(access_token=access)
+    authorization = request.headers.get("Authorization")
+    old_refresh = authorization.split()[1]
+
+    new_refresh = auth_token_service.update_refresh_token(user_id=identity, refresh_token=old_refresh)
+
+    if new_refresh:
+        access = create_access_token(identity=identity)
+        return jsonify(access_token=access, refresh_token=new_refresh)
+
+    raise InvalidAPIUsage("Token has been revoked", status_code=401)
 
 
 @auth_api.route("/logout", methods=["POST"])

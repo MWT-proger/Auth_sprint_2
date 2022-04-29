@@ -6,7 +6,6 @@ from flask import Flask
 from jwt_extended import init_jwt
 from ma import init_ma
 from swagger import init_swagger
-from middlewares import init_token_check
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super-secret"
@@ -14,7 +13,6 @@ app.config["SECRET_KEY"] = "super-secret"
 app.register_blueprint(auth_api, url_prefix='/auth/api/v1/')
 app.register_blueprint(bp_errors)
 
-init_token_check(app)
 init_db(app)
 init_datastore(app)
 init_ma(app)
