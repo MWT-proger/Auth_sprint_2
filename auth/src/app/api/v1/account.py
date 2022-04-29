@@ -212,4 +212,19 @@ def logout():
                    "error": str(e),
                    "data": None
                }, 500
-# TODO Повторить logout, только для всех устройств
+
+
+@auth_api.route("/full_logout", methods=["POST"])
+@jwt_required()
+def full_logout():
+    user_id = get_jwt_identity()
+    try:
+        account_service.full_logout(user_id=user_id)
+        return jsonify({"message": "Success logout."}), 200
+    except Exception as e:
+        return {
+                   "message": "Something went wrong!",
+                   "error": str(e),
+                   "data": None
+               }, 500
+

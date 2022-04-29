@@ -17,14 +17,23 @@ class AuthTokenService:
             self.db_session.add(token)
         return token
 
-    def get_refresh_token(self, user_id: str, user_agent: str):
-        token = self.model.query.filter_by(user_id=user_id, user_agent=user_agent.string).first()
-        return token
+    def get_refresh_token(self, user_id: str, user_agent: str = None, all: bool = None):
+        if all:
+            query = self.model.query.filter_by(user_id=user_id)
+        else:
+            query = self.model.query.filter_by(user_id=user_id, user_agent=user_agent.string).first()
+        return query
 
     def delete_refresh_token(self, user_id: str, user_agent: str):
         token = self.get_refresh_token(user_id=user_id, user_agent=user_agent)
         if token:
             self.db_session.delete(token)
+
+    def delete_all_refresh_token(self, user_id: str):
+        tokens = self.get_refresh_token(user_id=user_id, all=True)
+        if tokens:
+            for token in tokens:
+                self.db_session.delete(token)
 
 
 get_auth_token_service = AuthTokenService()

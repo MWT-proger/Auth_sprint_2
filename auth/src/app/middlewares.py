@@ -15,7 +15,17 @@ def init_token_check(app: Flask):
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload):
     jti = jwt_payload["jti"]
-    token_in_redis = redis_conn.get(jti)
-    print('token_in_redis')
-    print(token_in_redis)
+    user_id = jwt_payload["sub"]
+    iat = jwt_payload["iat"]
+
+    key_full_logout = "full_logout_%s" % user_id
+    key = "revoked_token_%s" % jti
+
+    full_logout = redis_conn.get(key_full_logout)
+
+    if full_logout and iat < float(full_logout):
+        token_in_redis = True
+    else:
+        token_in_redis = redis_conn.get(key)
+
     return token_in_redis is not None
