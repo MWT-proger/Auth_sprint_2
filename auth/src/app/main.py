@@ -1,4 +1,5 @@
 from api.v1.account import auth_api
+from api.v1.user import user_api
 from api.v1.response_code import bp_errors
 from database import init_db
 from datastore import init_datastore
@@ -11,6 +12,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "super-secret"
 
 app.register_blueprint(auth_api, url_prefix='/auth/api/v1/')
+app.register_blueprint(user_api, url_prefix='/auth/api/v1/users')
 app.register_blueprint(bp_errors)
 
 init_db(app)

@@ -5,8 +5,9 @@ from flask import Blueprint, jsonify, request, g
 from flask_jwt_extended import (get_jwt_identity, get_jwt,  jwt_required, create_access_token)
 from flask.views import MethodView
 
-from schemes.user import UserLoginSchema, UserRegisterSchema
+from schemes.user import UserLoginSchema, UserRegisterSchema, UserUpdateSchema
 
+from api.v1.base import BaseAPI
 from redis_db import redis_conn
 from services.user import get_user_service as user_service
 from services.account import get_account_service as account_service
@@ -77,33 +78,6 @@ config = Config()
 # TODO Перенести message в constant
 
 
-class BaseAPI(MethodView, ResponseErrorApi):
-    schema = None
-    service = None
-
-    def data_validation(self, data):
-        try:
-            self.schema.load(data)
-            return True
-        except Exception as e:
-            self.error_400(str(e))
-
-    def get_data(self):
-        try:
-            data = request.json
-            return data
-        except Exception as e:
-            self.error_400(str(e))
-
-    def service_work(self, data):
-        pass
-
-    def post(self):
-        data = self.get_data()
-        if self.data_validation(data):
-            return self.service_work(data)
-
-
 class LoginView(BaseAPI):
     schema = UserLoginSchema()
     service = account_service
@@ -124,32 +98,7 @@ class LoginView(BaseAPI):
         self.error_basic("Неверный логин или пароль", 401)
 
 
-auth_api.add_url_rule('/login', view_func=LoginView.as_view('login'), methods=["POST"])
-
-
-class UserView(BaseAPI):
-    schema = UserRegisterSchema()
-    service = user_service
-
-    def service_work(self, data):
-        login = data.get("login")
-        password = data.get("_password")
-        email = data.get("email")
-        is_existed_email = self.service.get_by_email(email)
-        if is_existed_email:
-            self.error_basic("Пользователь с таким email же зарегистрирован", 400)
-
-        is_existed_login = self.service.get_by_login(login)
-        if is_existed_login:
-            self.error_basic("Пользователь с таким login же зарегистрирован", 400)
-
-        user = self.service.create(login=login, email=email, password=password)
-        if user:
-            return jsonify(message="Registration Success")
-        self.error_500(str(e))
-
-
-auth_api.add_url_rule('/registration', view_func=LoginView.as_view('user'), methods=["POST"])
+auth_api.add_url_rule("/login", view_func=LoginView.as_view("login"), methods=["POST"])
 
 
 @auth_api.route("/refresh", methods=["POST"])

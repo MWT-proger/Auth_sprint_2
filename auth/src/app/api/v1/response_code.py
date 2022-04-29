@@ -31,8 +31,10 @@ class ResponseErrorApi:
     def __init__(self):
         pass
 
-    def error_500(self, e):
-        raise self.invalid_class("Что-то пошло не так", status_code=500, payload={"error": e})
+    def error_500(self, e: str = None):
+        if e:
+            raise self.invalid_class("Что-то пошло не так", status_code=500, payload={"error": e})
+        raise self.invalid_class("Что-то пошло не так", status_code=500)
 
     def error_400(self, e):
         raise self.invalid_class("Не верно предоставленны данные", status_code=400, payload={"error": e})
