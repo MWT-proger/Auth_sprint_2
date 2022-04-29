@@ -5,6 +5,7 @@ from api.v1.base import BaseAPI
 from services.account import get_account_service as account_service
 from config import Config
 from api.v1.response_code import ResponseErrorApi, InvalidAPIUsage
+from services.auth_token import get_auth_token_service as auth_token_service
 
 auth_api = Blueprint("auth_api", __name__)
 config = Config()

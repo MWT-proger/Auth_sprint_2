@@ -1,4 +1,4 @@
-from flask import jsonify, request, Blueprint
+from flask import jsonify, Blueprint
 
 bp_errors = Blueprint('errors', __name__)
 
