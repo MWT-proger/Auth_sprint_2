@@ -6,6 +6,7 @@ from database import db
 from flask_security import RoleMixin, UserMixin
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.inspection import inspect
 
 
 class RoleEnum(str, Enum):
@@ -41,6 +42,11 @@ class Role(db.Model, RoleMixin):
 
     def __str__(self):
         return f"Role >>> {self.name}"
+
+    def serialize(self):
+        role = {c: getattr(self, c) for c in inspect(self).attrs.keys()}
+        del role["users"]
+        return role
 
     class Meta:
         PROTECTED_ROLE_NAMES = (

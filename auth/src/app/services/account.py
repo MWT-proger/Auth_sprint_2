@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
-from werkzeug.security import check_password_hash, generate_password_hash
+from flask_jwt_extended import create_access_token, create_refresh_token
+from werkzeug.security import check_password_hash
 from redis_db import redis_conn
 from redis import Redis
 
@@ -12,6 +12,7 @@ from services.user import get_user_service as user_service
 from services.auth_token import get_auth_token_service as auth_token_service
 
 config = Config()
+
 
 class AccountService:
 
@@ -27,7 +28,6 @@ class AccountService:
         return access, refresh
 
     def refresh_token_pair(self, user_id):
-
         # TODO ДОБАВИТЬ УДАЛЕНИЕ СТАРОГО REFRESH ТОКЕНА
 
         return self.get_tokens_pair(user_id)
@@ -60,10 +60,10 @@ class AccountService:
     def full_logout(self, user_id: str):
         key = "full_logout_%s" % user_id
 
-        self.storage.set(key , datetime.now().timestamp(), ex=config.JWT.ACCESS_EXPIRE)
+        self.storage.set(key, datetime.now().timestamp(), ex=config.JWT.ACCESS_EXPIRE)
         auth_token_service.delete_all_refresh_token(user_id=user_id)
 
         self.db_session.commit()
 
-get_account_service = AccountService()
 
+get_account_service = AccountService()

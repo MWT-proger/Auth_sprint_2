@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from config import Config
 from flask import Flask
 from flask_migrate import Migrate
@@ -17,3 +19,15 @@ def init_db(app: Flask):
 
     db.init_app(app)
     migrate.init_app(app, db)
+
+
+@contextmanager
+def session_scope():
+    """Provide a transactional scope around a series of operations."""
+
+    try:
+        yield db.session
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise

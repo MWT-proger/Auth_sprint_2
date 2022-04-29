@@ -1,15 +1,10 @@
-from datetime import datetime
-
-from flask import request
-from flask import Blueprint, jsonify, request, g
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (get_jwt_identity, get_jwt,  jwt_required, create_access_token)
 
 from schemes.user import UserLoginSchema, UserRegisterSchema
 
-from redis_db import redis_conn
 from services.user import get_user_service as user_service
 from services.account import get_account_service as account_service
-from services.auth_token import get_auth_token_service as auth_token_service
 from config import Config
 from api.v1.response_code import InvalidAPIUsage
 
