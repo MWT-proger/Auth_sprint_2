@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import request
 from flask import Blueprint, jsonify, request, g
 from flask_jwt_extended import (get_jwt_identity, get_jwt,  jwt_required, create_access_token)
+from flask.views import MethodView
 
 from schemes.user import UserLoginSchema, UserRegisterSchema
 
@@ -11,7 +12,7 @@ from services.user import get_user_service as user_service
 from services.account import get_account_service as account_service
 from services.auth_token import get_auth_token_service as auth_token_service
 from config import Config
-from api.v1.response_code import InvalidAPIUsage
+from api.v1.response_code import ResponseErrorApi, InvalidAPIUsage
 
 auth_api = Blueprint("auth_api", __name__)
 config = Config()
@@ -71,76 +72,84 @@ config = Config()
 #     access_token = create_access_token(identity=login)
 #     return jsonify(access_token=access_token)
 
-
-@auth_api.route("/protected", methods=["GET"])
-@jwt_required()
-def protected():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
-
-
-@auth_api.route("/login", methods=["POST"])
 # TODO Необходимо прописать в документацию варианты ответов
 # TODO Необходимо добавить файл yaml
 # TODO Перенести message в constant
-def login_view():
-    data = request.json
 
-    if not data:
-        raise InvalidAPIUsage("Не верно предоставленны данные пользователя", status_code=400)
 
-    login = data.get("login")
-    password = data.get("password")
+class BaseAPI(MethodView, ResponseErrorApi):
+    schema = None
+    service = None
 
-    try:
-        UserLoginSchema().load({"login": login, "_password": password})
-    except Exception as e:
-        raise InvalidAPIUsage("Не верно предоставленны данные пользователя", status_code=400, payload={"error": str(e)})
-    try:
-        login = account_service.login(login=login, password=password, user_agent=request.user_agent)
-    except Exception as e:
-        raise InvalidAPIUsage("Что-то пошло не так", status_code=500, payload={"error": str(e)})
-    if login:
+    def data_validation(self, data):
         try:
-            access, refresh = login
-            return jsonify(access_token=access, refresh_token=refresh)
-
+            self.schema.load(data)
+            return True
         except Exception as e:
-            raise InvalidAPIUsage("Что-то пошло не так", status_code=500, payload={"error": str(e)})
+            self.error_400(str(e))
 
-    raise InvalidAPIUsage("Неверный логин или пароль", status_code=401)
+    def get_data(self):
+        try:
+            data = request.json
+            return data
+        except Exception as e:
+            self.error_400(str(e))
+
+    def service_work(self, data):
+        pass
+
+    def post(self):
+        data = self.get_data()
+        if self.data_validation(data):
+            return self.service_work(data)
 
 
-@auth_api.route("/registration", methods=["POST"])
-def registration_view():
-    data = request.json
+class LoginView(BaseAPI):
+    schema = UserLoginSchema()
+    service = account_service
 
-    if not data:
-        raise InvalidAPIUsage("Необходимо предоставить данные пользователя", status_code=400)
+    def service_work(self, data):
+        login = data.get("login")
+        password = data.get("_password")
+        try:
+            login = self.service.login(login=login, password=password, user_agent=request.user_agent)
+        except Exception as e:
+            self.error_500(str(e))
+        if login:
+            try:
+                access, refresh = login
+                return jsonify(access_token=access, refresh_token=refresh)
+            except Exception as e:
+                self.error_500(str(e))
+        self.error_basic("Неверный логин или пароль", 401)
 
-    login = data.get("login")
-    password = data.get("password")
-    email = data.get("email")
-    try:
-        UserRegisterSchema().load({"login": login,
-                                   "email": email,
-                                   "_password": password})
-    except Exception as e:
-        raise InvalidAPIUsage("Не верно предоставленны данные", status_code=400, payload={"error": str(e)})
 
-    is_existed_email = user_service.get_by_email(email)
-    if is_existed_email:
-        raise InvalidAPIUsage("Пользователь с таким email же зарегистрирован", status_code=400)
+auth_api.add_url_rule('/login', view_func=LoginView.as_view('login'), methods=["POST"])
 
-    is_existed_login = user_service.get_by_login(login)
-    if is_existed_login:
-        raise InvalidAPIUsage("Пользователь с таким login же зарегистрирован", status_code=400)
 
-    user = user_service.create(login=login, email=email, password=password)
-    if user:
-        return jsonify(message="Registration Success")
+class UserView(BaseAPI):
+    schema = UserRegisterSchema()
+    service = user_service
 
-    raise InvalidAPIUsage("Что-то пошло не так", status_code=500)
+    def service_work(self, data):
+        login = data.get("login")
+        password = data.get("_password")
+        email = data.get("email")
+        is_existed_email = self.service.get_by_email(email)
+        if is_existed_email:
+            self.error_basic("Пользователь с таким email же зарегистрирован", 400)
+
+        is_existed_login = self.service.get_by_login(login)
+        if is_existed_login:
+            self.error_basic("Пользователь с таким login же зарегистрирован", 400)
+
+        user = self.service.create(login=login, email=email, password=password)
+        if user:
+            return jsonify(message="Registration Success")
+        self.error_500(str(e))
+
+
+auth_api.add_url_rule('/registration', view_func=LoginView.as_view('user'), methods=["POST"])
 
 
 @auth_api.route("/refresh", methods=["POST"])
@@ -159,13 +168,9 @@ def logout():
     jti = get_jwt()["jti"]
     try:
         account_service.logout(user_id=user_id, jti=jti, user_agent=request.user_agent)
-        return jsonify({"message": "Success logout."}), 200
+        return jsonify({"message": "Success logout."})
     except Exception as e:
-        return {
-                   "message": "Something went wrong!",
-                   "error": str(e),
-                   "data": None
-               }, 500
+        raise InvalidAPIUsage("Что-то пошло не так", status_code=500, payload={"error": str(e)})
 
 
 @auth_api.route("/full_logout", methods=["POST"])
@@ -174,11 +179,13 @@ def full_logout():
     user_id = get_jwt_identity()
     try:
         account_service.full_logout(user_id=user_id)
-        return jsonify({"message": "Success logout."}), 200
+        return jsonify({"message": "Success logout."})
     except Exception as e:
-        return {
-                   "message": "Something went wrong!",
-                   "error": str(e),
-                   "data": None
-               }, 500
+        raise InvalidAPIUsage("Что-то пошло не так", status_code=500, payload={"error": str(e)})
 
+
+@auth_api.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user)
