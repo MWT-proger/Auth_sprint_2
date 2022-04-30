@@ -1,5 +1,5 @@
-from datastore import datastore
 from database import session_scope
+from datastore import datastore
 from models import Role
 from http import HTTPStatus
 from api.v1.response_code import InvalidAPIUsage

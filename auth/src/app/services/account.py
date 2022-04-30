@@ -1,16 +1,13 @@
 from datetime import datetime
-
-from werkzeug.security import check_password_hash, generate_password_hash
-from redis_db import redis_conn
 from redis import Redis
+from werkzeug.security import check_password_hash
 
-from config import Config
+from config import get_config as config
 from database import db
-from models import User, LoginHistory, AuthToken
-from services.user import get_user_service as user_service
+from models import LoginHistory
+from redis_db import redis_conn
 from services.auth_token import get_auth_token_service as auth_token_service
-
-config = Config()
+from services.user import get_user_service as user_service
 
 
 class AccountService:

@@ -1,16 +1,16 @@
 import os
-
 from datetime import timedelta
 
 
 class DatabaseConfig:
-    URI = "postgresql://{user}:{password}@{host}:{port}/{database_name}".format(
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
-        port=int(os.getenv("DB_PORT")),
-        database_name=os.getenv("DB_NAME"),
-    )
+    URI = "postgresql://{user}:{password}@{host}:{port}/{database_name}" \
+        .format(
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                host=os.getenv("DB_HOST"),
+                port=int(os.getenv("DB_PORT")),
+                database_name=os.getenv("DB_NAME"),
+                )
     TRACK_MODIFICATIONS = False
     SCHEMA = "content"
 
@@ -36,3 +36,5 @@ class Config:
     DB: DatabaseConfig = DatabaseConfig()
     security: SecurityConfig = SecurityConfig()
     REDIS: RedisConfig = RedisConfig()
+
+get_config = Config()

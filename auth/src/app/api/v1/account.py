@@ -1,69 +1,15 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import (get_jwt_identity, get_jwt, jwt_required, create_access_token)
-from schemes.user import UserLoginSchema, UserRegisterSchema, UserUpdateSchema
+from flask_jwt_extended import (create_access_token, get_jwt, get_jwt_identity,
+                                jwt_required)
+from flasgger import swag_from
 from api.v1.base import BaseAPI
+from api.v1.response_code import InvalidAPIUsage
+from api.v1.swag.account import login_swagger
+from schemes.user import UserLoginSchema
 from services.account import get_account_service as account_service
-from config import Config
-from api.v1.response_code import ResponseErrorApi, InvalidAPIUsage
 from services.auth_token import get_auth_token_service as auth_token_service
 
 auth_api = Blueprint("auth_api", __name__)
-config = Config()
-
-
-# @auth_api.route("/login", methods=["POST"])
-# def login():
-#     """
-#         Авторизация пользователя
-#         ---
-#         tags:
-#           - Login API
-#         parameters:
-#           - name: login
-#             in: path
-#             type: string
-#             required: true
-#             description: The awesomeness list
-#           - name: password
-#             in: path
-#             type: string
-#             required: true
-#             description: The awesomeness list
-#         produces:
-#         - application/json
-#         responses:
-#           500:
-#             description: Ошибка!
-#           200:
-#             description: Успешно (Временно оставлю тут это- потом изменю)
-#             application/json:
-#                 schema:
-#                   id: User
-#                   properties:
-#                     language:
-#                       type: string
-#                       description: The language name
-#                       default: Lua
-#                     features:
-#                       type: array
-#                       description: The awesomeness list
-#                       items:
-#                         type: string
-#                       default: ["perfect", "simple", "lovely"]
-#
-#         """
-#     login = request.json.get("login", None)
-#     password = request.json.get("password", None)
-#     admin = User(login=login, _password=password, email=login + "ddsd222@mail.ru")
-#     db.session.add(admin)
-#     db.session.commit()
-#     print(User.query.all()[1]._password)
-#
-#     # if login != "test" or password != "test":
-#     #     return jsonify({"msg": "Bad username or password"}), 401
-#
-#     access_token = create_access_token(identity=login)
-#     return jsonify(access_token=access_token)
 
 # TODO Необходимо прописать в документацию варианты ответов
 # TODO Необходимо добавить файл yaml
@@ -74,20 +20,23 @@ class LoginView(BaseAPI):
     schema = UserLoginSchema()
     service = account_service
 
-    def service_work(self, data):
-        login = data.get("login")
-        password = data.get("_password")
-        try:
-            login = self.service.login(login=login, password=password, user_agent=request.user_agent)
-        except Exception as e:
-            self.error_500(str(e))
-        if login:
+    @swag_from(login_swagger)
+    def post(self):
+        data = self.get_data()
+        if self.data_validation(data):
+            login = data.get("login")
+            password = data.get("_password")
             try:
-                access, refresh = login
-                return jsonify(access_token=access, refresh_token=refresh)
+                login = self.service.login(login=login, password=password, user_agent=request.user_agent)
             except Exception as e:
                 self.error_500(str(e))
-        self.error_basic("Неверный логин или пароль", 401)
+            if login:
+                try:
+                    access, refresh = login
+                    return jsonify(access_token=access, refresh_token=refresh)
+                except Exception as e:
+                    self.error_500(str(e))
+            self.error_basic("Неверный логин или пароль", 401)
 
 
 @auth_api.route("/refresh", methods=["POST"])

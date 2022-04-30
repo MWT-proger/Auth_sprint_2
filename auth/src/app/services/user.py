@@ -1,9 +1,9 @@
-from database import db
-from datastore import datastore
-from models import RoleEnum, User
 from werkzeug.security import generate_password_hash
 
 from api.v1.response_code import InvalidAPIUsage
+from database import db
+from datastore import datastore
+from models import LoginHistory, RoleEnum, User
 
 
 class UserService:
@@ -81,6 +81,10 @@ class UserService:
     def get_by_user_id(self, user_id: str):
         user = self.model.query.filter_by(id=user_id).first()
         return user
+
+    def get_login_history(self, user_id: str):
+        query = LoginHistory.query.filter_by(user_id=user_id).all()
+        return query, False
 
 
 get_user_service = UserService()

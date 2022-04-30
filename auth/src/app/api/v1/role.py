@@ -1,9 +1,13 @@
-from flask import Blueprint, jsonify
-from api.v1.response_code import InvalidAPIUsage
-from services.role import role_service
-from http import HTTPStatus
 from schemes.role import RoleCreateSchema, RoleUpdateSchema
 from api.v1.base import BaseAPI
+
+from http import HTTPStatus
+
+from flask import Blueprint, jsonify
+
+from api.v1.response_code import InvalidAPIUsage
+from services.role import role_service
+
 
 role_api = Blueprint("role_api", __name__)
 
