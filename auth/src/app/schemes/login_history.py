@@ -1,5 +1,3 @@
-from marshmallow import fields, validate
-
 from ma import ma
 from models import LoginHistory
 

@@ -1,7 +1,9 @@
-from flask import Blueprint, request, jsonify
+from http import HTTPStatus
+
+from flask import Blueprint, jsonify, request
+
 from api.v1.response_code import InvalidAPIUsage
 from services.role import role_service
-from http import HTTPStatus
 
 role_api = Blueprint("role_api", __name__)
 

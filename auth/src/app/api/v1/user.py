@@ -3,10 +3,9 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from api.v1.base import BaseAPI
 from api.v1.response_code import InvalidAPIUsage
-from schemes.user import UserLoginSchema, UserRegisterSchema, UserUpdateSchema
 from schemes.login_history import LoginHistorySchema
+from schemes.user import UserRegisterSchema, UserUpdateSchema
 from services.user import get_user_service as user_service
-
 
 user_api = Blueprint("user_api", __name__)
 

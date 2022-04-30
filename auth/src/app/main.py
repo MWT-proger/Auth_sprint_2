@@ -1,10 +1,11 @@
+from flask import Flask
+
 from api.v1.account import auth_api
+from api.v1.response_code import bp_errors
 from api.v1.role import role_api
 from api.v1.user import user_api
-from api.v1.response_code import bp_errors
 from database import init_db
 from datastore import init_datastore
-from flask import Flask
 from jwt_extended import init_jwt
 from ma import init_ma
 from swagger import init_swagger

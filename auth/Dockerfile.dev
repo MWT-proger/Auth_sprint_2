@@ -9,7 +9,8 @@ ENV PYTHONUNBUFFERED 1
 RUN pip install --upgrade pip
 
 COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+COPY ./dev_requirements.txt .
+RUN pip install -r dev_requirements.txt
 
 COPY ./src /src
 WORKDIR /usr/src/auth/src

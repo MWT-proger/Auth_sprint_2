@@ -1,15 +1,14 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import (get_jwt_identity, get_jwt,  jwt_required, create_access_token)
-from schemes.user import UserLoginSchema, UserRegisterSchema, UserUpdateSchema
+from flask_jwt_extended import (create_access_token, get_jwt, get_jwt_identity,
+                                jwt_required)
+
 from api.v1.base import BaseAPI
+from api.v1.response_code import InvalidAPIUsage
+from schemes.user import UserLoginSchema
 from services.account import get_account_service as account_service
-from config import Config
-from api.v1.response_code import ResponseErrorApi, InvalidAPIUsage
 from services.auth_token import get_auth_token_service as auth_token_service
 
 auth_api = Blueprint("auth_api", __name__)
-config = Config()
-
 
 # @auth_api.route("/login", methods=["POST"])
 # def login():

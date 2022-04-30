@@ -1,7 +1,7 @@
-from database import db
-
 from flask_jwt_extended import create_refresh_token
-from models import User, LoginHistory, AuthToken
+
+from database import db
+from models import AuthToken
 
 
 class AuthTokenService:
