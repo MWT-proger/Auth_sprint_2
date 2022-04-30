@@ -1,7 +1,7 @@
 from database import db
 from datastore import datastore
 from models import RoleEnum, User
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash
 
 from api.v1.response_code import InvalidAPIUsage
 

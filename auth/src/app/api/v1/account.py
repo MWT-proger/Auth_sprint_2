@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import (get_jwt_identity, get_jwt,  jwt_required, create_access_token)
+from flask_jwt_extended import (get_jwt_identity, get_jwt, jwt_required, create_access_token)
 from schemes.user import UserLoginSchema, UserRegisterSchema, UserUpdateSchema
 from api.v1.base import BaseAPI
 from services.account import get_account_service as account_service
@@ -90,9 +90,6 @@ class LoginView(BaseAPI):
         self.error_basic("Неверный логин или пароль", 401)
 
 
-auth_api.add_url_rule("/login", view_func=LoginView.as_view("login"), methods=["POST"])
-
-
 @auth_api.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh_token():
@@ -137,3 +134,6 @@ def full_logout():
 def protected():
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user)
+
+
+auth_api.add_url_rule("/login", view_func=LoginView.as_view("login"), methods=["POST"])

@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
-
+from services.role import role_service
 from api.v1.base import BaseAPI
 from schemes.user import UserLoginSchema, UserRegisterSchema, UserUpdateSchema
 from services.user import get_user_service as user_service
@@ -52,3 +52,9 @@ user_view = UserView.as_view("user_api")
 
 user_api.add_url_rule("/registration", view_func=user_view, methods=["POST"])
 user_api.add_url_rule("/my", view_func=user_view, methods=["GET", "PUT"])
+
+
+@user_api.get("/roles/<user_id>")
+def get_user_role(user_id):
+    roles = role_service.get_user_role(user_id)
+    return jsonify(roles=roles)

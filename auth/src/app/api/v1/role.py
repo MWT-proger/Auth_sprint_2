@@ -1,60 +1,56 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify
 from api.v1.response_code import InvalidAPIUsage
 from services.role import role_service
 from http import HTTPStatus
+from schemes.role import RoleCreateSchema, RoleUpdateSchema
+from api.v1.base import BaseAPI
 
 role_api = Blueprint("role_api", __name__)
 
 
-@role_api.post("/create")
-def create():
-    try:
-        data = request.json
-    except Exception as e:
-        raise InvalidAPIUsage("Данные отсутствуют", status_code=HTTPStatus.BAD_REQUEST)
+class RoleView(BaseAPI):
+    schema = RoleCreateSchema()
+    service = role_service
 
-    if not data:
-        raise InvalidAPIUsage("Не верно предоставленны данные", status_code=HTTPStatus.BAD_REQUEST)
+    def service_work(self, data):
+        try:
+            role_id = role_service.create(data)
+        except Exception as e:
+            raise InvalidAPIUsage("Ошибка базы данных", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    name = data.get("name")
-    description = data.get("description")
+        return jsonify({"role_id": role_id, "message": "Роль успешно создана"}), HTTPStatus.OK
 
-    try:
-        role_service.create(name, description)
-    except Exception as e:
-        raise InvalidAPIUsage("Ошибка базы данных", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+    def get(self):
+        try:
+            roles = role_service.get_all()
+        except Exception as e:
+            raise InvalidAPIUsage("Ошибка базы данных", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    return jsonify({"message": "Роль успешно создана"}), HTTPStatus.OK
+        return jsonify({"data": roles})
 
+    def put(self, role_id):
+        self.schema = RoleUpdateSchema()
+        data = self.get_data()
 
-@role_api.get("/")
-def get_all():
-    try:
-        roles = role_service.get_all()
-    except Exception as e:
-        raise InvalidAPIUsage("Ошибка базы данных", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+        if self.data_validation(data):
+            role = role_service.update(role_id=role_id, data=data)
 
-    return jsonify({"data": roles})
+            return jsonify(id=role.id), HTTPStatus.OK
 
+    def delete(self, role_id):
+        try:
+            role_service.delete_by_id(role_id)
+        except Exception as e:
+            raise InvalidAPIUsage("Ошибка базы данных", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-@role_api.put("/<role_id>")
-def update(role_id):
-    pass
-
-
-@role_api.delete("/<role_id>")
-def delete(role_id):
-    try:
-        role_service.delete_by_id(role_id)
-    except Exception as e:
-        raise InvalidAPIUsage("Ошибка базы данных", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
-
-    return jsonify({"message": "Роль успешно удалена"})
+        return jsonify({"message": "Роль успешно удалена"})
 
 
-@role_api.get("/user/<user_id>")
-def get_user_role(user_id):
-    pass
+view = RoleView.as_view("role_api")
+
+role_api.add_url_rule("/create", view_func=view, methods=["POST"])
+role_api.add_url_rule("/", view_func=view, methods=["GET"])
+role_api.add_url_rule("/<role_id>", view_func=view, methods=["DELETE", "PUT"])
 
 
 @role_api.put("/user/<user_id>")

@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from flask_jwt_extended import create_access_token, create_refresh_token
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from redis_db import redis_conn
 from redis import Redis
 
@@ -20,18 +19,6 @@ class AccountService:
         self.storage: Redis = redis_conn
         self.db_session = db.session
 
-    @staticmethod
-    def get_tokens_pair(user_id: str):
-        access = create_access_token(identity=user_id)
-        refresh = create_refresh_token(identity=user_id)
-
-        return access, refresh
-
-    def refresh_token_pair(self, user_id):
-        # TODO ДОБАВИТЬ УДАЛЕНИЕ СТАРОГО REFRESH ТОКЕНА
-
-        return self.get_tokens_pair(user_id)
-
     def add_login_history(self, user_id: str, user_agent: str):
         login_history = LoginHistory(user_id=user_id, user_agent=user_agent)
         self.db_session.add(login_history)
@@ -43,7 +30,7 @@ class AccountService:
             return
 
         self.add_login_history(user_id=user.id, user_agent=user_agent.string)
-        access, refresh = self.get_tokens_pair(user.id)
+        access, refresh = auth_token_service.get_tokens_pair(user.id)
         auth_token_service.add_or_update_refresh_token(user_id=user.id, refresh_token=refresh, user_agent=user_agent)
 
         self.db_session.commit()

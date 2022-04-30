@@ -1,11 +1,10 @@
-from marshmallow import fields, validate
+from marshmallow import fields
 
 from ma import ma
 from models import User
 
 
 class UserRegisterSchema(ma.SQLAlchemyAutoSchema):
-
     class Meta:
         model = User
         fields = ("login", "email", "_password")
@@ -22,7 +21,6 @@ class UserUpdateSchema(ma.SQLAlchemyAutoSchema):
 
 
 class UserLoginSchema(ma.SQLAlchemyAutoSchema):
-
     class Meta:
         model = User
         fields = ("login", "_password")
