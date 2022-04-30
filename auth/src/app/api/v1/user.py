@@ -2,8 +2,11 @@ from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from api.v1.base import BaseAPI
+from api.v1.response_code import InvalidAPIUsage
 from schemes.user import UserLoginSchema, UserRegisterSchema, UserUpdateSchema
+from schemes.login_history import LoginHistorySchema
 from services.user import get_user_service as user_service
+
 
 user_api = Blueprint("user_api", __name__)
 
@@ -52,3 +55,16 @@ user_view = UserView.as_view("user_api")
 
 user_api.add_url_rule("/registration", view_func=user_view, methods=["POST"])
 user_api.add_url_rule("/my", view_func=user_view, methods=["GET", "PUT"])
+
+
+@user_api.route("/my_login_history", methods=["GET"])
+@jwt_required()
+def get_login_history_view():
+    current_user = get_jwt_identity()
+
+    login_history, error = user_service.get_login_history(user_id=current_user)
+
+    if error:
+        InvalidAPIUsage(error.message, status_code=error.code)
+
+    return jsonify(LoginHistorySchema(many=True).dump(login_history))
