@@ -26,7 +26,7 @@ class RoleService:
         name = data.get("name")
         description = data.get("description")
 
-        role = self.model.query.filter_by(id=role_id).first()
+        role = self.get_role_by_id(role_id)
 
         if not name and not description:
             InvalidAPIUsage("Пользователь с таким login же зарегистрирован", status_code=HTTPStatus.BAD_REQUEST)
@@ -54,10 +54,34 @@ class RoleService:
         with session_scope():
             self.model.query.filter_by(id=id).delete()
 
+    def get_role_by_id(self, role_id):
+        role = self.model.query.filter_by(id=role_id).first()
+        return role
+
     def get_user_role(self, user_id):
         user = user_service.get_by_user_id(user_id)
         roles = [role.serialize() for role in user.roles]
         return roles
+
+    def add_role_to_user(self, user_id, role_id):
+        user = user_service.get_by_user_id(user_id)
+        role = self.get_role_by_id(role_id)
+
+        if user.has_role(role):
+            raise Exception("User already has this role")
+
+        with session_scope():
+            datastore.add_role_to_user(user, role)
+
+    def delete_role_from_user(self, user_id, role_id):
+        user = user_service.get_by_user_id(user_id)
+        role = self.get_role_by_id(role_id)
+
+        if not user.has_role(role):
+            raise Exception("User hasn't this role")
+
+        with session_scope():
+            datastore.remove_role_from_user(user, role)
 
 
 role_service: RoleService = RoleService()

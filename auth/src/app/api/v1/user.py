@@ -6,6 +6,7 @@ from api.v1.response_code import InvalidAPIUsage
 from schemes.login_history import LoginHistorySchema
 from schemes.user import UserRegisterSchema, UserUpdateSchema
 from services.user import get_user_service as user_service
+from http import HTTPStatus
 
 user_api = Blueprint("user_api", __name__)
 
@@ -58,8 +59,34 @@ user_api.add_url_rule("/my", view_func=user_view, methods=["GET", "PUT"])
 
 @user_api.get("/roles/<user_id>")
 def get_user_role(user_id):
-    roles = role_service.get_user_role(user_id)
+    try:
+        roles = role_service.get_user_role(user_id)
+    except Exception as e:
+        raise InvalidAPIUsage("Database error", status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                              payload={"error": str(e)})
     return jsonify(roles=roles)
+
+
+@user_api.post("/roles/<user_id>/<role_id>")
+def add_role(user_id, role_id):
+    try:
+        role_service.add_role_to_user(user_id, role_id)
+    except Exception as e:
+        raise InvalidAPIUsage("Database error", status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                              payload={"error": str(e)})
+
+    return jsonify(message="Role added successfully")
+
+
+@user_api.delete("/roles/<user_id>/<role_id>")
+def delete_role(user_id, role_id):
+    try:
+        role_service.delete_role_from_user(user_id, role_id)
+    except Exception as e:
+        raise InvalidAPIUsage("Database error", status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                              payload={"error": str(e)})
+
+    return jsonify(message="Role deleted successfully")
 
 
 @user_api.route("/my_login_history", methods=["GET"])
