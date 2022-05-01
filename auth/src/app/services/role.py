@@ -6,6 +6,14 @@ from api.v1.response_code import InvalidAPIUsage
 from services.user import get_user_service as user_service
 
 
+class AddRoleException(Exception):
+    pass
+
+
+class DeleteRoleException(Exception):
+    pass
+
+
 class RoleService:
     def __init__(self):
         self.model = Role
@@ -68,7 +76,7 @@ class RoleService:
         role = self.get_role_by_id(role_id)
 
         if user.has_role(role):
-            raise Exception("User already has this role")
+            raise AddRoleException("User already has this role")
 
         with session_scope():
             datastore.add_role_to_user(user, role)
@@ -78,7 +86,7 @@ class RoleService:
         role = self.get_role_by_id(role_id)
 
         if not user.has_role(role):
-            raise Exception("User hasn't this role")
+            raise DeleteRoleException("User hasn't this role")
 
         with session_scope():
             datastore.remove_role_from_user(user, role)

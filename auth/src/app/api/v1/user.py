@@ -7,6 +7,7 @@ from schemes.login_history import LoginHistorySchema
 from schemes.user import UserRegisterSchema, UserUpdateSchema
 from services.user import get_user_service as user_service
 from http import HTTPStatus
+from utils.check_role import check_role
 
 user_api = Blueprint("user_api", __name__)
 
@@ -58,6 +59,7 @@ user_api.add_url_rule("/my", view_func=user_view, methods=["GET", "PUT"])
 
 
 @user_api.get("/roles/<user_id>")
+@jwt_required()
 def get_user_role(user_id):
     try:
         roles = role_service.get_user_role(user_id)
@@ -68,6 +70,8 @@ def get_user_role(user_id):
 
 
 @user_api.post("/roles/<user_id>/<role_id>")
+@jwt_required()
+@check_role("admin")
 def add_role(user_id, role_id):
     try:
         role_service.add_role_to_user(user_id, role_id)
@@ -79,6 +83,8 @@ def add_role(user_id, role_id):
 
 
 @user_api.delete("/roles/<user_id>/<role_id>")
+@jwt_required()
+@check_role("admin")
 def delete_role(user_id, role_id):
     try:
         role_service.delete_role_from_user(user_id, role_id)
