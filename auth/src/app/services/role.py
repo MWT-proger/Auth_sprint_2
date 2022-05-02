@@ -2,7 +2,7 @@ from database import session_scope
 from datastore import datastore
 from models import Role
 from http import HTTPStatus
-from api.v1.response_code import InvalidAPIUsage
+from api.v1.response_code import get_error_response as error_response
 from services.user import get_user_service as user_service
 
 
@@ -37,7 +37,7 @@ class RoleService:
         role = self.get_role_by_id(role_id)
 
         if not name and not description:
-            InvalidAPIUsage("Пользователь с таким login же зарегистрирован", status_code=HTTPStatus.BAD_REQUEST)
+            return error_response.error_400()
 
         with session_scope():
             if name and name != role.name:
@@ -52,7 +52,7 @@ class RoleService:
     def check_exists_name(self, name):
         role = self.get_by_name(name)
         if role:
-            raise InvalidAPIUsage("Role with this name already exist", status_code=400)
+            return error_response.fail({"name": "Role with this name already exist"}, status_code=400)
 
     def get_by_name(self, name):
         role = self.model.query.filter_by(name=name).first()

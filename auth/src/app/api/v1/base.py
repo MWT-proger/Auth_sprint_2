@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, jsonify
 from flask.views import MethodView
 
 from api.v1.response_code import ResponseErrorApi

@@ -55,3 +55,10 @@ login_swagger = \
             }
         }
     }
+
+
+error = {
+    "status": "fail/error",
+    "message": "some text",
+    "data": [{"title": "A title is required"}]
+}

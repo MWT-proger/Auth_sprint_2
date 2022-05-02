@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash
 
-from api.v1.response_code import InvalidAPIUsage
+from api.v1.response_code import get_error_response as error_response
 from database import db
 from datastore import datastore
 from models import LoginHistory, RoleEnum, User
@@ -16,12 +16,12 @@ class UserService:
     def check_exist_email(self, email):
         is_existed_email = self.get_by_email(email)
         if is_existed_email:
-            raise InvalidAPIUsage("Пользователь с таким email же зарегистрирован", status_code=400)
+            return error_response.fail({"email": "email already exists"}, status_code=400)
 
     def check_exist_login(self, login):
         is_existed_login = self.get_by_login(login)
         if is_existed_login:
-            raise InvalidAPIUsage("Пользователь с таким login же зарегистрирован", status_code=400)
+            return error_response.fail({"login": "login already exists"}, status_code=400)
 
     def create(self, data: dict):
         login = data.get("login")

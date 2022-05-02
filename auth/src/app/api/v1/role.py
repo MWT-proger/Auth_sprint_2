@@ -5,7 +5,7 @@ from http import HTTPStatus
 
 from flask import Blueprint, jsonify
 
-from api.v1.response_code import InvalidAPIUsage
+from api.v1.response_code import get_error_response as error_response
 from services.role import role_service
 
 
@@ -20,7 +20,7 @@ class RoleView(BaseAPI):
         try:
             role_id = role_service.create(data)
         except Exception as e:
-            raise InvalidAPIUsage("Ошибка базы данных", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+            return error_response.error_500()
 
         return jsonify({"role_id": role_id, "message": "Роль успешно создана"}), HTTPStatus.OK
 
@@ -28,7 +28,7 @@ class RoleView(BaseAPI):
         try:
             roles = role_service.get_all()
         except Exception as e:
-            raise InvalidAPIUsage("Ошибка базы данных", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+            return error_response.error_500()
 
         return jsonify({"data": roles})
 
@@ -45,7 +45,7 @@ class RoleView(BaseAPI):
         try:
             role_service.delete_by_id(role_id)
         except Exception as e:
-            raise InvalidAPIUsage("Ошибка базы данных", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+            return error_response.error_500()
 
         return jsonify({"message": "Роль успешно удалена"})
 
