@@ -1,7 +1,6 @@
-from flask import request, jsonify
-from flask.views import MethodView
-
 from api.v1.response_code import ResponseErrorApi
+from flask import request
+from flask.views import MethodView
 
 
 class BaseAPI(MethodView, ResponseErrorApi):

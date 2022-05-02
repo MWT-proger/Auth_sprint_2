@@ -1,12 +1,11 @@
-from flask import Blueprint, jsonify
-from flask_jwt_extended import get_jwt_identity, jwt_required
-from services.role import role_service
 from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
+from flask import Blueprint, jsonify
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from schemes.login_history import LoginHistorySchema
 from schemes.user import UserRegisterSchema, UserUpdateSchema
+from services.role import role_service
 from services.user import get_user_service as user_service
-from http import HTTPStatus
 from utils.check_role import check_role
 
 user_api = Blueprint("user_api", __name__)

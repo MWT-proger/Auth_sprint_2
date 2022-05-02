@@ -1,10 +1,10 @@
-from flask import Blueprint, jsonify, request
-from flask_jwt_extended import (create_access_token, get_jwt, get_jwt_identity,
-                                jwt_required)
-from flasgger import swag_from
 from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
 from api.v1.swag.account import login_swagger
+from flasgger import swag_from
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import (create_access_token, get_jwt, get_jwt_identity,
+                                jwt_required)
 from schemes.user import UserLoginSchema
 from services.account import get_account_service as account_service
 from services.auth_token import get_auth_token_service as auth_token_service

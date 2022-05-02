@@ -1,6 +1,5 @@
-from marshmallow import fields
-
 from ma import ma
+from marshmallow import fields
 from models import Role
 
 

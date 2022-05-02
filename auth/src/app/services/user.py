@@ -4,6 +4,7 @@ from api.v1.response_code import get_error_response as error_response
 from database import db
 from datastore import datastore
 from models import LoginHistory, RoleEnum, User
+from werkzeug.security import generate_password_hash
 
 
 class UserService:

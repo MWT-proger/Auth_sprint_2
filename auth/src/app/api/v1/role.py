@@ -1,13 +1,14 @@
-from schemes.role import RoleCreateSchema, RoleUpdateSchema
-from api.v1.base import BaseAPI
-
 from http import HTTPStatus
 
-from flask import Blueprint, jsonify
-
+from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
+from api.v1.swag.role import get_roles, update_role
+from flasgger import swag_from
+from flask import Blueprint, jsonify
+from flask_jwt_extended import jwt_required
+from schemes.role import RoleCreateSchema, RoleUpdateSchema
 from services.role import role_service
-
+from utils.check_role import check_role
 
 role_api = Blueprint("role_api", __name__)
 
@@ -24,6 +25,7 @@ class RoleView(BaseAPI):
 
         return jsonify({"role_id": role_id, "message": "Роль успешно создана"}), HTTPStatus.OK
 
+    @swag_from(get_roles)
     def get(self):
         try:
             roles = role_service.get_all()
@@ -32,6 +34,9 @@ class RoleView(BaseAPI):
 
         return jsonify({"data": roles})
 
+    @swag_from(update_role)
+    @jwt_required()
+    @check_role("admin")
     def put(self, role_id):
         self.schema = RoleUpdateSchema()
         data = self.get_data()
