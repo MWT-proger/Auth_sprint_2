@@ -31,8 +31,36 @@ login_swagger = \
                     }
                 }
             },
+            "401": {
+                "description": "UNAUTHORIZED",
+                "examples": {
+                    "application/json": {
+                         "msg": "Wrong login or password",
+                         "status": "error"
+                    }
+                }
+            },
             "500": {
-                "description": "Ошибка!"
+                "description": "Internal Server Error",
+                "examples": {
+                    "application/json": {
+                        "msg": "Something went wrong",
+                        "status": "error",
+                        "data": []
+                    }
+
+                }
+            },
+            "400": {
+                "description": "BAD REQUEST",
+                "examples": {
+                    "application/json": {
+                        "msg": "The data is incorrect",
+                        "status": "error",
+                        "data": []
+                    }
+
+                }
             }
         },
         "definitions": {
@@ -56,9 +84,179 @@ login_swagger = \
         }
     }
 
+refresh_token_swagger = \
+    {
+        "tags": [
+            "Update JWT"
+        ],
+        "summary": "Обновление Access и Refresh токенов. Необходимо авторизовываться через refresh token",
+        "security": [
+            {
+                "Bearer": []
+            }
+        ],
+        "operationId": "RefreshTokenAPI",
+        "responses": {
+            "200": {
+                "description": "OK",
+                "examples": {
+                    "application/json": {
+                        "access_token": "some access token",
+                        "refresh_token": "some refresh token"
+                    }
+                }
+            },
+            "401": {
+                "description": "UNAUTHORIZED",
+                "examples": {
+                    "application/json": {
+                         "msg": "Token has been revoked",
+                         "status": "error"
+                    }
+                }
+            },
+            "500": {
+                "description": "Internal Server Error",
+                "examples": {
+                    "application/json": {
+                        "msg": "Something went wrong",
+                        "status": "error",
+                        "data": []
+                    }
 
-error = {
-    "status": "fail/error",
-    "message": "some text",
-    "data": [{"title": "A title is required"}]
-}
+                }
+            }
+        }
+    }
+
+
+logout_swagger = \
+    {
+        "tags": [
+            "Logout"
+        ],
+        "summary": "Выход пользователя",
+        "security": [
+            {
+                "Bearer": []
+            }
+        ],
+        "operationId": "LogoutUser",
+        "responses": {
+            "200": {
+                "description": "OK",
+                "examples": {
+                    "application/json":
+                        {"msg": "Success logout."}
+                }
+            },
+            "401": {
+                "description": "UNAUTHORIZED",
+                "examples": {
+                    "application/json": {
+                         "msg": "Token has been revoked",
+                         "status": "error"
+                    }
+                }
+            },
+            "500": {
+                "description": "Internal Server Error",
+                "examples": {
+                    "application/json": {
+                        "msg": "Something went wrong",
+                        "status": "error",
+                        "data": []
+                    }
+
+                }
+            }
+        }
+    }
+
+
+full_logout_swagger = \
+    {
+        "tags": [
+            "Full logout"
+        ],
+        "summary": "Выход пользователя со всех устройств",
+        "security": [
+            {
+                "Bearer": []
+            }
+        ],
+        "operationId": "FullLogoutUser",
+        "responses": {
+            "200": {
+                "description": "OK",
+                "examples": {
+                    "application/json":
+                        {"msg": "Success logout."}
+                }
+            },
+            "401": {
+                "description": "UNAUTHORIZED",
+                "examples": {
+                    "application/json": {
+                         "msg": "Token has been revoked",
+                         "status": "error"
+                    }
+                }
+            },
+            "500": {
+                "description": "Internal Server Error",
+                "examples": {
+                    "application/json": {
+                        "msg": "Something went wrong",
+                        "status": "error",
+                        "data": []
+                    }
+
+                }
+            }
+        }
+    }
+
+
+protected_swagger = \
+    {
+        "tags": [
+            "Protected"
+        ],
+        "summary": "Проверка авторизации",
+        "security": [
+            {
+                "Bearer": []
+            }
+        ],
+        "operationId": "ProtectedUser",
+        "responses": {
+            "200": {
+                "description": "OK",
+                "examples": {
+                    "application/json":
+                        {"logged_in_as": "6d12302c-6e39-4b83-aa94-c21de1a76e0e"}
+                }
+            },
+            "401": {
+                "description": "UNAUTHORIZED",
+                "examples": {
+                    "application/json": {
+                         "msg": "Token has been revoked",
+                         "status": "error"
+                    }
+                }
+            },
+            "500": {
+                "description": "Internal Server Error",
+                "examples": {
+                    "application/json": {
+                        "msg": "Something went wrong",
+                        "status": "error",
+                        "data": []
+                    }
+
+                }
+            }
+        }
+    }

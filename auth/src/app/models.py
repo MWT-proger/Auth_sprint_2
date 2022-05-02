@@ -2,13 +2,11 @@ from datetime import datetime
 from enum import Enum
 from uuid import uuid4
 
+from database import db
 from flask_security import RoleMixin, UserMixin
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.inspection import inspect
-
-from database import db
-
 
 
 class RoleEnum(str, Enum):

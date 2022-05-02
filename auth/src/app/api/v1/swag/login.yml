@@ -3,6 +3,8 @@ tags:
 summary: Аунтификация пользователя
 consumes:
   - application/json
+security:
+        - Bearer2
 parameters:
   - in: body
     name: user

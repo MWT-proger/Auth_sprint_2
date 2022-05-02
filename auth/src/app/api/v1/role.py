@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
-from api.v1.swag.role import get_roles, update_role
+from api.v1.swag.role import get_roles, update_role, delete_role
 from flasgger import swag_from
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
@@ -46,6 +46,9 @@ class RoleView(BaseAPI):
 
             return jsonify(id=role.id), HTTPStatus.OK
 
+    @swag_from(delete_role)
+    @jwt_required()
+    @check_role("admin")
     def delete(self, role_id):
         try:
             role_service.delete_by_id(role_id)
@@ -60,8 +63,3 @@ view = RoleView.as_view("role_api")
 role_api.add_url_rule("/create", view_func=view, methods=["POST"])
 role_api.add_url_rule("/", view_func=view, methods=["GET"])
 role_api.add_url_rule("/<role_id>", view_func=view, methods=["DELETE", "PUT"])
-
-
-@role_api.put("/user/<user_id>")
-def update_user_role(user_id):
-    pass

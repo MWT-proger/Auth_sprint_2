@@ -1,12 +1,10 @@
 from contextlib import contextmanager
 
+from config import get_config as config
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
-
-from config import get_config as config
-
 
 metadata = MetaData(schema=config.DB.SCHEMA)
 

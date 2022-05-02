@@ -4,8 +4,6 @@ from api.v1.response_code import get_error_response as error_response
 from database import session_scope
 from datastore import datastore
 from models import Role
-from http import HTTPStatus
-from api.v1.response_code import get_error_response as error_response
 from services.user import get_user_service as user_service
 
 

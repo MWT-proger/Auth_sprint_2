@@ -1,6 +1,3 @@
-from services.user import get_user_service as user_service
-from flask_jwt_extended import get_jwt_identity
-from api.v1.response_code import InvalidAPIUsage
 from functools import wraps
 from http import HTTPStatus
 

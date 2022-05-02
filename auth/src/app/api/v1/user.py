@@ -1,5 +1,8 @@
 from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
+from api.v1.swag import user as swag
+from api.v1.swag.role import get_user_role, add_role, remove_role
+from flasgger import swag_from
 from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from schemes.login_history import LoginHistorySchema
@@ -15,15 +18,19 @@ class UserView(BaseAPI):
     schema = UserRegisterSchema()
     service = user_service
 
-    def service_work(self, data):
-        user, error = self.service.create(data=data)
+    @swag_from(swag.signup_swagger)
+    def post(self):
+        data = self.get_data()
+        if self.data_validation(data):
+            user, error = self.service.create(data=data)
 
-        if not user:
-            return self.error_500()
+            if not user:
+                return self.error_500()
 
-        return jsonify(message="Registration Success")
+            return jsonify(msg="Registration Success")
 
     @jwt_required()
+    @swag_from(swag.user_me_swagger)
     def get(self):
         user_id = get_jwt_identity()
         user = self.service.get_by_user_id(user_id)
@@ -34,6 +41,7 @@ class UserView(BaseAPI):
         return jsonify(login=user.login, email=user.email)
 
     @jwt_required()
+    @swag_from(swag.update_user_swagger)
     def put(self):
         self.schema = UserUpdateSchema()
         data = self.get_data()
@@ -56,6 +64,7 @@ user_api.add_url_rule("/my", view_func=user_view, methods=["GET", "PUT"])
 
 @user_api.get("/roles/<user_id>")
 @jwt_required()
+@swag_from(get_user_role)
 def get_user_role(user_id):
     try:
         roles = role_service.get_user_role(user_id)
@@ -67,6 +76,7 @@ def get_user_role(user_id):
 @user_api.post("/roles/<user_id>/<role_id>")
 @jwt_required()
 @check_role("admin")
+@swag_from(add_role)
 def add_role(user_id, role_id):
     try:
         role_service.add_role_to_user(user_id, role_id)
@@ -79,6 +89,7 @@ def add_role(user_id, role_id):
 @user_api.delete("/roles/<user_id>/<role_id>")
 @jwt_required()
 @check_role("admin")
+@swag_from(remove_role)
 def delete_role(user_id, role_id):
     try:
         role_service.delete_role_from_user(user_id, role_id)
@@ -90,6 +101,7 @@ def delete_role(user_id, role_id):
 
 @user_api.route("/my_login_history", methods=["GET"])
 @jwt_required()
+@swag_from(swag.get_login_history_swagger)
 def get_login_history_view():
     current_user = get_jwt_identity()
 
