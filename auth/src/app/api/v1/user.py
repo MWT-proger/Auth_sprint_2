@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from flasgger import swag_from
 from services.role import role_service
 from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
+from api.v1.swag import user as swag
 from schemes.login_history import LoginHistorySchema
 from schemes.user import UserRegisterSchema, UserUpdateSchema
 from services.user import get_user_service as user_service
@@ -16,15 +18,19 @@ class UserView(BaseAPI):
     schema = UserRegisterSchema()
     service = user_service
 
-    def service_work(self, data):
-        user, error = self.service.create(data=data)
+    @swag_from(swag.signup_swagger)
+    def post(self):
+        data = self.get_data()
+        if self.data_validation(data):
+            user, error = self.service.create(data=data)
 
-        if not user:
-            return self.error_500()
+            if not user:
+                return self.error_500()
 
-        return jsonify(message="Registration Success")
+            return jsonify(msg="Registration Success")
 
     @jwt_required()
+    @swag_from(swag.user_me_swagger)
     def get(self):
         user_id = get_jwt_identity()
         user = self.service.get_by_user_id(user_id)
@@ -35,6 +41,7 @@ class UserView(BaseAPI):
         return jsonify(login=user.login, email=user.email)
 
     @jwt_required()
+    @swag_from(swag.update_user_swagger)
     def put(self):
         self.schema = UserUpdateSchema()
         data = self.get_data()
@@ -91,6 +98,7 @@ def delete_role(user_id, role_id):
 
 @user_api.route("/my_login_history", methods=["GET"])
 @jwt_required()
+@swag_from(swag.get_login_history_swagger)
 def get_login_history_view():
     current_user = get_jwt_identity()
 

@@ -19,12 +19,7 @@ template = {
       "in": "header",
       "description": "Авторизация JWT с использованием схемы Bearer. Пример: \"Authorization: Bearer {token}\""
     }
-  },
-  "security": [
-    {
-      "Bearer": []
-    }
-  ]
+  }
 
 }
 swagger = Swagger(template=template)
