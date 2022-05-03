@@ -2,13 +2,15 @@ import asyncio
 import json
 from dataclasses import dataclass
 from typing import Optional
+from uuid import uuid4
 
 import aiohttp
 import aioredis
 import pytest
+from sqlalchemy.orm import scoped_session, sessionmaker
 from functional.config import DatabaseConfig, TestFilesPath
-from functional.models.new_base_model import NewBaseModel
 from functional.settings import TestSettings
+from functional.models import Base, User, Role, RolesUsers, LoginHistory, AuthToken
 from multidict import CIMultiDictProxy
 
 settings = TestSettings()
@@ -28,25 +30,10 @@ def event_loop():
     return asyncio.get_event_loop()
 
 
-class CacheService:
-    def __init__(self, cache: aioredis.Redis):
-        self.cache = cache
-
-    async def get(self, index, key=None, model=NewBaseModel):
-        data = await self.cache.get(f"{index}: {key}" if key else index)
-        if not data:
-            return None
-        if isinstance(data := json.loads(data), list):
-            data = [json.loads(item) for item in data]
-            return [model(**film) for film in data]
-        else:
-            return model.parse_obj(data)
-
-
 @pytest.fixture(scope="session")
 async def cache_client():
     client = await aioredis.create_redis_pool((settings.redis_host, settings.redis_port), minsize=10, maxsize=20)
-    yield CacheService(client)
+    yield aioredis.Redis(client)
     await client.flushdb()
     client.close()
 
@@ -54,6 +41,24 @@ async def cache_client():
 @pytest.fixture(scope="session")
 def db_conn():
     return db_config.ENGINE.connect()
+
+
+@pytest.fixture(scope="session")
+def setup_database(db_conn):
+    meta = Base.metadata
+    meta.bind = db_conn
+    meta.create_all()
+    yield
+
+    meta.drop_all()
+
+
+@pytest.fixture
+def db_session(setup_database, db_conn):
+
+    yield scoped_session(
+        sessionmaker(autocommit=False, autoflush=False, bind=db_conn)
+    )
 
 
 @pytest.fixture(scope="session")
@@ -79,9 +84,9 @@ def make_get_request(session):
 
 @pytest.fixture
 def make_post_request(session):
-    async def inner(url: str, params: Optional[dict] = None) -> HTTPResponse:
+    async def inner(url: str, data: dict, params: Optional[dict] = None) -> HTTPResponse:
         params = params or {}
-        async with session.post(url, params=params) as response:
+        async with session.post(url, json=data) as response:
             return HTTPResponse(
                 body=await response.json(),
                 headers=response.headers,
@@ -89,3 +94,24 @@ def make_post_request(session):
             )
 
     return inner
+
+
+@pytest.fixture
+async def roles_to_pg(db_session):
+    roles = [
+        {
+            "id": "6d12302c-6e39-4b83-aa94-c21de1a76e0e",
+            "name": "user",
+            "description": "description",
+        },
+        {
+            "id": "6d12302c-6e39-4b83-aa94-c21de1a76e0a",
+            "name": "admin",
+            "description": "description",
+        }
+    ]
+
+    for role in roles:
+        db_role = Role(**role)
+        db_session.add(db_role)
+    db_session.commit()

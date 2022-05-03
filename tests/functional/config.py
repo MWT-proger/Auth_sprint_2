@@ -1,6 +1,4 @@
-import os
-
-from sqlalchemy import create_engine
+from sqlalchemy import MetaData, create_engine
 from functional.settings import TestSettings
 
 settings = TestSettings()
@@ -24,11 +22,12 @@ class TestFilesPath:
 
 class DatabaseConfig:
     ENGINE = create_engine("postgresql://{user}:{password}@{host}:{port}/{database_name}".format(
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
-        port=int(os.getenv("DB_PORT", 5433)),
-        database_name=os.getenv("DB_NAME"),
+        user=settings.db_user,
+        password=settings.db_password,
+        host=settings.db_host,
+        port=settings.db_port,
+        database_name=settings.db_database_name,
     ))
     TRACK_MODIFICATIONS = False
-    SCHEMA = "content"
+    SCHEMA = settings.db_scheme
+    metadata = MetaData(schema=settings.db_scheme)
