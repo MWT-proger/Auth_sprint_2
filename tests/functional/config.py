@@ -25,6 +25,7 @@ class TestUrls:
 class TestFilesPath:
     registration: str = BASE_TEST_PATH + "registration.json"
     roles_for_registration: str = BASE_TEST_PATH + "roles_for_registration.json"
+    account_user: str = BASE_TEST_PATH + "account_user.json"
 
 
 class DatabaseConfig:

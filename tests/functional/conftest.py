@@ -9,6 +9,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from functional.config import DatabaseConfig, TestFilesPath, TestUrls
 from functional.settings import TestSettings
 from functional.utils import get_data
+from functional.testdata import data_account
 from functional.models import Base, User, Role, RolesUsers, LoginHistory, AuthToken
 from multidict import CIMultiDictProxy
 
@@ -49,7 +50,7 @@ def setup_database(db_conn):
     meta.bind = db_conn
     meta.create_all()
     yield
-    # meta.drop_all()
+    meta.drop_all()
 
 @pytest.fixture
 def db_session(setup_database, db_conn):
@@ -107,20 +108,22 @@ def make_delete_request(session):
 
 
 class DBManager:
-    def __init__(self, path_file: str, model: Base, db_session):
+    def __init__(self, model: Base, db_session, data = None, path_file: str = None):
         self.db_session = db_session
         self.path_file = path_file
+        self.data = data
         self.model = model
 
     async def add_dada(self):
-        data = await get_data.from_file(self.path_file)
+        if not self.data:
+            self.data = await get_data.from_file(self.path_file)
 
-        if isinstance(data, list):
-            for obj in data:
+        if isinstance(self.data, list):
+            for obj in self.data:
                 db_obj = self.model(**obj)
                 self.db_session.add(db_obj)
         else:
-            db_obj = self.model(**data)
+            db_obj = self.model(**self.data)
             self.db_session.add(db_obj)
         self.db_session.commit()
 
@@ -131,9 +134,19 @@ class DBManager:
 
 @pytest.fixture
 async def role_reg_to_pg(db_session):
-    manager_db = DBManager(db_session=db_session, path_file=test_data.roles_for_registration, model=Role)
+    manager_db = DBManager(db_session=db_session, data=data_account.roles, model=Role)
     await manager_db.add_dada()
     yield
+    db_session.query(RolesUsers).delete()
+    await manager_db.delete_dada()
+
+
+@pytest.fixture
+async def account_user_to_pg(db_session):
+    manager_db = DBManager(db_session=db_session, data=data_account.users, model=User)
+    await manager_db.add_dada()
+    yield
+    db_session.query(RolesUsers).delete()
     await manager_db.delete_dada()
 
 
