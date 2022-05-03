@@ -50,9 +50,11 @@ async def cache_client():
     await client.flushdb()
     client.close()
 
+
 @pytest.fixture(scope="session")
 def db_conn():
     return db_config.ENGINE.connect()
+
 
 @pytest.fixture(scope="session")
 async def session():
@@ -73,6 +75,7 @@ def make_get_request(session):
             )
 
     return inner
+
 
 @pytest.fixture
 def make_post_request(session):
