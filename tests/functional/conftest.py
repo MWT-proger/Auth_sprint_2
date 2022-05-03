@@ -138,6 +138,7 @@ async def role_reg_to_pg(db_session):
     await manager_db.add_dada()
     yield
     db_session.query(RolesUsers).delete()
+    db_session.query(User).delete()
     await manager_db.delete_dada()
 
 
@@ -148,6 +149,17 @@ async def account_user_to_pg(db_session):
     yield
     db_session.query(RolesUsers).delete()
     await manager_db.delete_dada()
+
+@pytest.fixture
+async def delete_data_all(db_session):
+    yield True
+    db_session.query(RolesUsers).delete()
+    db_session.query(LoginHistory).delete()
+    db_session.query(AuthToken).delete()
+    db_session.query(User).delete()
+    db_session.query(Role).delete()
+
+    db_session.commit()
 
 
 @pytest.fixture

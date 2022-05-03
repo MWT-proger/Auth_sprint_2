@@ -39,3 +39,10 @@ async def test_registration_error(make_post_request, db_session, role_reg_to_pg,
         ,
         "status": "fail"
     }
+
+
+@pytest.mark.asyncio
+async def test_login_ok(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
+    response = await make_post_request(urls.login, data=data_account.user_login)
+
+    assert response.status == HTTPStatus.OK

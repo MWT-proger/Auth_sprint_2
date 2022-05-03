@@ -6,6 +6,11 @@ users = [
         "_password": "pbkdf2:sha256:260000$LILRuUM1GSreoWx7$549f77b5d7045d6689f7a8bb2111fb840f51db68aa1569b7b44032f0e262abce"
     }
 ]
+user_login = {
+        "login": "account_user",
+        "_password": "12345"
+    }
+
 test_registration_user = {
         "login": "test_registration",
         "email": "test_registration@mail.ru",
