@@ -14,15 +14,14 @@ def wait_for_db():
     logger.info("start")
 
     engine = create_engine("postgresql://{user}:{password}@{host}:{port}/{database_name}".format(
-                user=os.getenv("DB_USER"),
-                password=os.getenv("DB_PASSWORD"),
-                host=os.getenv("DB_HOST"),
-                port=int(os.getenv("DB_PORT")),
-                database_name=os.getenv("DB_NAME"),
+                user=settings.db_user,
+                password=settings.db_password,
+                host=settings.db_host,
+                port=settings.db_port,
+                database_name=settings.db_database_name,
                 ))
 
-    db = engine.connect()
-    logger.info(db)
+    engine.connect()
     logger.info("successful connection!")
 
 
