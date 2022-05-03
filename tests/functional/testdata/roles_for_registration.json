@@ -1,0 +1,12 @@
+[
+        {
+            "id": "6d12302c-6e39-4b83-aa94-c21de1a76e0e",
+            "name": "user",
+            "description": "description"
+        },
+        {
+            "id": "6d12302c-6e39-4b83-aa94-c21de1a76e0b",
+            "name": "admin",
+            "description": "description"
+        }
+    ]

@@ -8,6 +8,7 @@ import pytest
 from sqlalchemy.orm import scoped_session, sessionmaker
 from functional.config import DatabaseConfig, TestFilesPath, TestUrls
 from functional.settings import TestSettings
+from functional.utils import get_data
 from functional.models import Base, User, Role, RolesUsers, LoginHistory, AuthToken
 from multidict import CIMultiDictProxy
 
@@ -48,7 +49,7 @@ def setup_database(db_conn):
     meta.bind = db_conn
     meta.create_all()
     yield
-
+    # meta.drop_all()
 
 @pytest.fixture
 def db_session(setup_database, db_conn):
@@ -103,6 +104,37 @@ def make_delete_request(session):
             )
 
     return inner
+
+
+class DBManager:
+    def __init__(self, path_file: str, model: Base, db_session):
+        self.db_session = db_session
+        self.path_file = path_file
+        self.model = model
+
+    async def add_dada(self):
+        data = await get_data.from_file(self.path_file)
+
+        if isinstance(data, list):
+            for obj in data:
+                db_obj = self.model(**obj)
+                self.db_session.add(db_obj)
+        else:
+            db_obj = self.model(**data)
+            self.db_session.add(db_obj)
+        self.db_session.commit()
+
+    async def delete_dada(self):
+        self.db_session.query(self.model).delete()
+        self.db_session.commit()
+
+
+@pytest.fixture
+async def role_reg_to_pg(db_session):
+    manager_db = DBManager(db_session=db_session, path_file=test_data.roles_for_registration, model=Role)
+    await manager_db.add_dada()
+    yield
+    await manager_db.delete_dada()
 
 
 @pytest.fixture
