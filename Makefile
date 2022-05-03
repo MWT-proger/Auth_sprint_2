@@ -28,7 +28,8 @@ run_flake8:
 
 run_isort:
 	docker-compose -f docker-compose.dev.yml exec auth-dev-app isort .
-
+api_tests:
+	docker-compose -f tests/functional/docker-compose.yml up
 database_init:
 	docker-compose -f docker-compose.dev.yml exec auth-dev-app flask db init
 
