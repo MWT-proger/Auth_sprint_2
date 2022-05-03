@@ -1,14 +1,12 @@
 import asyncio
-import json
 from dataclasses import dataclass
 from typing import Optional
-from uuid import uuid4
 
 import aiohttp
 import aioredis
 import pytest
 from sqlalchemy.orm import scoped_session, sessionmaker
-from functional.config import DatabaseConfig, TestFilesPath
+from functional.config import DatabaseConfig, TestFilesPath, TestUrls
 from functional.settings import TestSettings
 from functional.models import Base, User, Role, RolesUsers, LoginHistory, AuthToken
 from multidict import CIMultiDictProxy
@@ -16,6 +14,7 @@ from multidict import CIMultiDictProxy
 settings = TestSettings()
 db_config = DatabaseConfig()
 test_data = TestFilesPath()
+urls = TestUrls()
 
 
 @dataclass
@@ -50,12 +49,9 @@ def setup_database(db_conn):
     meta.create_all()
     yield
 
-    meta.drop_all()
-
 
 @pytest.fixture
 def db_session(setup_database, db_conn):
-
     yield scoped_session(
         sessionmaker(autocommit=False, autoflush=False, bind=db_conn)
     )
@@ -70,9 +66,9 @@ async def session():
 
 @pytest.fixture
 def make_get_request(session):
-    async def inner(url: str, params: Optional[dict] = None) -> HTTPResponse:
+    async def inner(url: str, params: Optional[dict] = None, headers: Optional[dict] = None) -> HTTPResponse:
         params = params or {}
-        async with session.get(url, params=params) as response:
+        async with session.get(url, params=params, headers=headers) as response:
             return HTTPResponse(
                 body=await response.json(),
                 headers=response.headers,
@@ -85,7 +81,6 @@ def make_get_request(session):
 @pytest.fixture
 def make_post_request(session):
     async def inner(url: str, data: dict, params: Optional[dict] = None) -> HTTPResponse:
-        params = params or {}
         async with session.post(url, json=data) as response:
             return HTTPResponse(
                 body=await response.json(),
@@ -97,7 +92,21 @@ def make_post_request(session):
 
 
 @pytest.fixture
-async def roles_to_pg(db_session):
+def make_delete_request(session):
+    async def inner(url: str, params: Optional[dict] = None, headers: Optional[dict] = None) -> HTTPResponse:
+        params = params or {}
+        async with session.delete(url, headers=headers) as response:
+            return HTTPResponse(
+                body=await response.json(),
+                headers=response.headers,
+                status=response.status,
+            )
+
+    return inner
+
+
+@pytest.fixture
+async def data_to_pg(db_session):
     roles = [
         {
             "id": "6d12302c-6e39-4b83-aa94-c21de1a76e0e",
@@ -111,7 +120,41 @@ async def roles_to_pg(db_session):
         }
     ]
 
-    for role in roles:
-        db_role = Role(**role)
-        db_session.add(db_role)
-    db_session.commit()
+    user = {
+        "id": "cd547e34-c0da-41e0-be70-898d7e0cd17b",
+        "login": "USER",
+        "email": "test@mail.ru",
+        "_password": "pbkdf2:sha256:260000$LILRuUM1GSreoWx7$549f77b5d7045d6689f7a8bb2111fb840f51db68aa1569b7b44032f0e262abce",
+    }
+
+    user_role = {
+        "id": "846cac3f-6afb-464f-a5d1-73a8ea2a22ee",
+        "user_id": "cd547e34-c0da-41e0-be70-898d7e0cd17b",
+        "role_id": "6d12302c-6e39-4b83-aa94-c21de1a76e0a"
+    }
+
+    try:
+        db_user = User(**user)
+        db_session.add(db_user)
+        db_session.commit()
+
+        for role in roles:
+            db_role = Role(**role)
+            db_session.add(db_role)
+        db_session.commit()
+
+        db_user_role = RolesUsers(**user_role)
+        db_session.add(db_user_role)
+        db_session.commit()
+    except Exception as e:
+        db_session.rollback()
+
+
+@pytest.fixture
+async def get_access(make_post_request):
+    response = await make_post_request(urls.login, data={
+        "login": "USER",
+        "_password": "12345"
+    })
+
+    return response.body["access_token"]

@@ -16,6 +16,7 @@ db_config = DatabaseConfig()
 metadata_obj = MetaData(schema=db_config.SCHEMA)
 Base = declarative_base(db_config.ENGINE, metadata=metadata_obj)
 
+
 class RoleEnum(str, Enum):
     user = "user"
     admin = "admin"
@@ -89,4 +90,3 @@ class AuthToken(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     user_agent = Column(Text, nullable=False)
     refresh_token = Column(Text, nullable=False)
-

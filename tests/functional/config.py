@@ -2,18 +2,24 @@ from sqlalchemy import MetaData, create_engine
 from functional.settings import TestSettings
 
 settings = TestSettings()
-BASE_AUTH_URL_V1 = "{protocol}://{host}:{port}/auth/api/v1".format(protocol=settings.service_protocol,
-                                                                   host=settings.service_host,
-                                                                   port=settings.service_port)
-BASE_ROLE_URL_V1 = "{protocol}://{host}:{port}/role/api/v1".format(protocol=settings.service_protocol,
-                                                                   host=settings.service_host,
-                                                                   port=settings.service_port)
+
+BASE = "{protocol}://{host}:{port}".format(protocol=settings.service_protocol,
+                                           host=settings.service_host,
+                                           port=settings.service_port)
+
+AUTH_URL_V1 = f"{BASE}/auth/api/v1"
+ROLE_URL_V1 = f"{BASE}/role/api/v1"
+
 BASE_TEST_PATH = "tests/functional/testdata/"
 
 
 class TestUrls:
-    registration: str = BASE_AUTH_URL_V1 + "/users/registration"
-    get_all_roles: str = BASE_ROLE_URL_V1
+    registration: str = AUTH_URL_V1 + "/users/registration"
+    login: str = AUTH_URL_V1 + "/login"
+    get_all_roles: str = ROLE_URL_V1
+    get_user_role: str = AUTH_URL_V1 + "/users/roles"
+    add_new_role: str = ROLE_URL_V1 + "/create"
+    delete_role: str = ROLE_URL_V1
 
 
 class TestFilesPath:
