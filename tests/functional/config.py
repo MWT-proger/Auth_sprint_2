@@ -20,6 +20,7 @@ class TestUrls:
     get_user_role: str = AUTH_URL_V1 + "/users/roles"
     add_new_role: str = ROLE_URL_V1 + "/create"
     delete_role: str = ROLE_URL_V1
+    add_role_to_user = AUTH_URL_V1 + "/users/roles"
 
 
 class TestFilesPath:

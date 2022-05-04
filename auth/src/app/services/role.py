@@ -15,6 +15,14 @@ class DeleteRoleException(Exception):
     pass
 
 
+class UserNotFound(Exception):
+    pass
+
+
+class RoleNotFound(Exception):
+    pass
+
+
 class RoleService:
     def __init__(self):
         self.model = Role
@@ -76,6 +84,12 @@ class RoleService:
         user = user_service.get_by_user_id(user_id)
         role = self.get_role_by_id(role_id)
 
+        if not user:
+            raise UserNotFound("User with this id not found")
+
+        if not role:
+            raise RoleNotFound("Role with this id not found")
+
         if user.has_role(role):
             raise AddRoleException("User already has this role")
 
@@ -85,6 +99,12 @@ class RoleService:
     def delete_role_from_user(self, user_id, role_id):
         user = user_service.get_by_user_id(user_id)
         role = self.get_role_by_id(role_id)
+
+        if not user:
+            raise UserNotFound("User with this id not found")
+
+        if not role:
+            raise RoleNotFound("Role with this id not found")
 
         if not user.has_role(role):
             raise DeleteRoleException("User hasn't this role")

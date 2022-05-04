@@ -10,6 +10,7 @@ from functional.config import DatabaseConfig, TestFilesPath, TestUrls
 from functional.settings import TestSettings
 from functional.utils import get_data
 from functional.testdata import data_account
+from functional.testdata import role_data
 from functional.models import Base, User, Role, RolesUsers, LoginHistory, AuthToken
 from multidict import CIMultiDictProxy
 
@@ -52,6 +53,7 @@ def setup_database(db_conn):
     yield
     meta.drop_all()
 
+
 @pytest.fixture
 def db_session(setup_database, db_conn):
     yield scoped_session(
@@ -82,8 +84,8 @@ def make_get_request(session):
 
 @pytest.fixture
 def make_post_request(session):
-    async def inner(url: str, data: dict, params: Optional[dict] = None) -> HTTPResponse:
-        async with session.post(url, json=data) as response:
+    async def inner(url: str, data: dict = None, headers: Optional[dict] = None) -> HTTPResponse:
+        async with session.post(url, json=data, headers=headers) as response:
             return HTTPResponse(
                 body=await response.json(),
                 headers=response.headers,
@@ -96,7 +98,6 @@ def make_post_request(session):
 @pytest.fixture
 def make_delete_request(session):
     async def inner(url: str, params: Optional[dict] = None, headers: Optional[dict] = None) -> HTTPResponse:
-        params = params or {}
         async with session.delete(url, headers=headers) as response:
             return HTTPResponse(
                 body=await response.json(),
@@ -108,7 +109,7 @@ def make_delete_request(session):
 
 
 class DBManager:
-    def __init__(self, model: Base, db_session, data = None, path_file: str = None):
+    def __init__(self, model: Base, db_session, data=None, path_file: str = None):
         self.db_session = db_session
         self.path_file = path_file
         self.data = data
@@ -150,6 +151,7 @@ async def account_user_to_pg(db_session):
     db_session.query(RolesUsers).delete()
     await manager_db.delete_dada()
 
+
 @pytest.fixture
 async def delete_data_all(db_session):
     yield True
@@ -164,43 +166,17 @@ async def delete_data_all(db_session):
 
 @pytest.fixture
 async def data_to_pg(db_session):
-    roles = [
-        {
-            "id": "6d12302c-6e39-4b83-aa94-c21de1a76e0e",
-            "name": "user",
-            "description": "description",
-        },
-        {
-            "id": "6d12302c-6e39-4b83-aa94-c21de1a76e0a",
-            "name": "admin",
-            "description": "description",
-        }
-    ]
-
-    user = {
-        "id": "cd547e34-c0da-41e0-be70-898d7e0cd17b",
-        "login": "USER",
-        "email": "test@mail.ru",
-        "_password": "pbkdf2:sha256:260000$LILRuUM1GSreoWx7$549f77b5d7045d6689f7a8bb2111fb840f51db68aa1569b7b44032f0e262abce",
-    }
-
-    user_role = {
-        "id": "846cac3f-6afb-464f-a5d1-73a8ea2a22ee",
-        "user_id": "cd547e34-c0da-41e0-be70-898d7e0cd17b",
-        "role_id": "6d12302c-6e39-4b83-aa94-c21de1a76e0a"
-    }
-
     try:
-        db_user = User(**user)
+        db_user = User(**role_data.user)
         db_session.add(db_user)
         db_session.commit()
 
-        for role in roles:
+        for role in role_data.roles:
             db_role = Role(**role)
             db_session.add(db_role)
         db_session.commit()
 
-        db_user_role = RolesUsers(**user_role)
+        db_user_role = RolesUsers(**role_data.user_role)
         db_session.add(db_user_role)
         db_session.commit()
     except Exception as e:
