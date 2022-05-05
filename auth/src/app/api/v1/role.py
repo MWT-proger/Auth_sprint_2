@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
-from api.v1.swag.role import get_roles, update_role, delete_role
+from api.v1.swag.role import delete_role, get_roles, update_role
 from flasgger import swag_from
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required

@@ -14,8 +14,17 @@ BASE_TEST_PATH = "tests/functional/testdata/"
 
 
 class TestUrls:
-    registration: str = AUTH_URL_V1 + "/users/registration"
+
     login: str = AUTH_URL_V1 + "/login"
+    protected: str = AUTH_URL_V1 + "/protected"
+    refresh: str = AUTH_URL_V1 + "/refresh"
+    logout: str = AUTH_URL_V1 + "/logout"
+    full_logout: str = AUTH_URL_V1 + "/full_logout"
+
+    registration: str = AUTH_URL_V1 + "/users/registration"
+    users_my: str = AUTH_URL_V1 + "/users/my"
+    my_login_history: str = AUTH_URL_V1 + "/users/my_login_history"
+
     get_all_roles: str = ROLE_URL_V1
     get_user_role: str = AUTH_URL_V1 + "/users/roles"
     add_new_role: str = ROLE_URL_V1 + "/create"

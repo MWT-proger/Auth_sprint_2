@@ -96,6 +96,19 @@ def make_post_request(session):
 
 
 @pytest.fixture
+def make_put_request(session):
+    async def inner(url: str, data: dict = None, headers: Optional[dict] = None) -> HTTPResponse:
+        async with session.put(url, json=data, headers=headers) as response:
+            return HTTPResponse(
+                body=await response.json(),
+                headers=response.headers,
+                status=response.status,
+            )
+
+    return inner
+
+
+@pytest.fixture
 def make_delete_request(session):
     async def inner(url: str, params: Optional[dict] = None, headers: Optional[dict] = None) -> HTTPResponse:
         async with session.delete(url, headers=headers) as response:
