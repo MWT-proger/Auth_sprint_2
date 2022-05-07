@@ -18,18 +18,19 @@ run:
 	docker-compose -f docker-compose.yml up --build -d
 
 # Блок разработки
+run_dev: up_dev upgrade_dev
 
-run_dev:
-	docker-compose -f docker-compose.dev.yml up -d --build
+up_dev:
+	docker-compose -f docker-compose.dev.yml up  --build
+
+upgrade_dev:
 	docker-compose -f docker-compose.dev.yml exec auth-dev-app flask db upgrade
 
-run_flake8:
-	docker-compose -f docker-compose.dev.yml exec auth-dev-app flake8 .
-
-run_isort:
-	docker-compose -f docker-compose.dev.yml exec auth-dev-app isort .
 api_tests:
 	docker-compose -f tests/functional/docker-compose.yml up
+
+db_init_migrate: database_init database_migrate
+
 database_init:
 	docker-compose -f docker-compose.dev.yml exec auth-dev-app flask db init
 

@@ -1,10 +1,9 @@
-from http import HTTPStatus
-
 from api.v1.response_code import get_error_response as error_response
 from database import session_scope
 from datastore import datastore
 from models import Role
 from services.user import get_user_service as user_service
+from sqlalchemy.exc import IntegrityError
 
 
 class AddRoleException(Exception):
@@ -20,6 +19,10 @@ class UserNotFound(Exception):
 
 
 class RoleNotFound(Exception):
+    pass
+
+
+class RoleDuplication(Exception):
     pass
 
 
@@ -48,20 +51,22 @@ class RoleService:
         if not name and not description:
             return error_response.error_400()
 
-        with session_scope():
-            if name and name != role.name:
-                self.check_exists_name(name)
-                role.name = name
+        try:
+            with session_scope():
+                if name and name != role.name:
+                    role.name = name
 
-            if description and description != role.description:
-                role.description = description
+                if description and description != role.description:
+                    role.description = description
+        except IntegrityError as e:
+            raise RoleDuplication("Role with this name already exist")
 
         return role
 
     def check_exists_name(self, name):
         role = self.get_by_name(name)
         if role:
-            return error_response.fail({"name": "Role with this name already exist"}, status_code=400)
+            return error_response.fail({"name": "Role with this name already exist"}, status_code=HTTPStatus.BAD_REQUEST)
 
     def get_by_name(self, name):
         role = self.model.query.filter_by(name=name).first()

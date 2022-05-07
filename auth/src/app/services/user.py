@@ -1,8 +1,10 @@
+from http import HTTPStatus
+
 from api.v1.response_code import get_error_response as error_response
 from database import db
 from datastore import datastore
 from models import LoginHistory, RoleEnum, User
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class UserService:
@@ -15,12 +17,17 @@ class UserService:
     def check_exist_email(self, email):
         is_existed_email = self.get_by_email(email)
         if is_existed_email:
-            return error_response.fail({"email": "email already exists"}, status_code=400)
+            return error_response.fail({"email": "email already exists"}, status_code=HTTPStatus.BAD_REQUEST)
+
+    def check_old_password(self, user, old_password):
+        if not check_password_hash(user._password, old_password):
+            return error_response.fail({"old_password": "Old password is incorrect"},
+                                       status_code=HTTPStatus.BAD_REQUEST)
 
     def check_exist_login(self, login):
         is_existed_login = self.get_by_login(login)
         if is_existed_login:
-            return error_response.fail({"login": "login already exists"}, status_code=400)
+            return error_response.fail({"login": "login already exists"}, status_code=HTTPStatus.BAD_REQUEST)
 
     def create(self, data: dict):
         login = data.get("login")
@@ -38,9 +45,23 @@ class UserService:
 
         return new_user, False
 
+    def change_password(self, user_id: str, data: dict):
+        password = data.get("_password")
+        old_password = data.get("old_password")
+
+        user = self.get_by_user_id(user_id)
+
+        self.check_old_password(user, old_password)
+
+        hashed_password = generate_password_hash(password)
+        user._password = hashed_password
+
+        self.db_session.add(user)
+        self.db_session.commit()
+        return True
+
     def update(self, user_id: str, data: dict):
         login = data.get("login")
-        password = data.get("_password")
         email = data.get("email")
         update_status = False
 
@@ -56,11 +77,6 @@ class UserService:
             self.check_exist_email(email)
 
             user.email = email
-            update_status = True
-
-        if password:
-            hashed_password = generate_password_hash(password)
-            user._password = hashed_password
             update_status = True
 
         if update_status:

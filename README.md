@@ -27,7 +27,7 @@ docker-compose -f docker-compose.dev.yml exec auth-dev-app flask db upgrade
  
  ## Краткое руководство использования
  
- после запуска доступен по [http://localhost/api/swagger](http://localhost/api/swagger)
+ после запуска доступен по [http://localhost:5000/api/swagger](http://localhost:5000/api/swagger)
  
  там даны все ручки и краткая инструкция к ним
  

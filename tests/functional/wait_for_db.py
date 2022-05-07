@@ -1,7 +1,7 @@
 import os
 
-from sqlalchemy import create_engine
 from settings import TestSettings
+from sqlalchemy import create_engine
 from utils.app_logger import get_logger
 from utils.backoff import backoff
 

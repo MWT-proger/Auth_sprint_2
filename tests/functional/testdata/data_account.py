@@ -26,6 +26,22 @@ user_update_ok = {
         "login": "account_user_3",
         "email": "account_user_3@mail.ru"
     }
+
+
+user_change_password_invalid = {
+        "old_password": "invalid_password",
+        "_password": "new_password"
+    }
+user_change_password_ok = {
+        "old_password": "12345",
+        "_password": "new_password"
+    }
+user_login_new = {
+        "login": "account_user",
+        "_password": "new_password"
+    }
+
+
 user_login_error = {
         "login": "account_user"
     }

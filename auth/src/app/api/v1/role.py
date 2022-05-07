@@ -42,7 +42,10 @@ class RoleView(BaseAPI):
         data = self.get_data()
 
         if self.data_validation(data):
-            role = role_service.update(role_id=role_id, data=data)
+            try:
+                role = role_service.update(role_id=role_id, data=data)
+            except Exception as e:
+                return error_response.error_500(str(e))
 
             return jsonify(id=role.id), HTTPStatus.OK
 

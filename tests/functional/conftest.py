@@ -5,14 +5,14 @@ from typing import Optional
 import aiohttp
 import aioredis
 import pytest
-from sqlalchemy.orm import scoped_session, sessionmaker
 from functional.config import DatabaseConfig, TestFilesPath, TestUrls
+from functional.models import (AuthToken, Base, LoginHistory, Role, RolesUsers,
+                               User)
 from functional.settings import TestSettings
+from functional.testdata import data_account, role_data
 from functional.utils import get_data
-from functional.testdata import data_account
-from functional.testdata import role_data
-from functional.models import Base, User, Role, RolesUsers, LoginHistory, AuthToken
 from multidict import CIMultiDictProxy
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 settings = TestSettings()
 db_config = DatabaseConfig()

@@ -34,15 +34,15 @@ class AccountService:
         return access, refresh
 
     def logout(self, user_id: str, jti: str, user_agent: str):
-        key = "revoked_token_%s" % jti
+        key = f"revoked_token_{jti}"
 
-        self.storage.set(key, "", ex=config.JWT.ACCESS_EXPIRE)
+        self.storage.set(key, "1", ex=config.JWT.ACCESS_EXPIRE)
         auth_token_service.delete_refresh_token(user_id=user_id, user_agent=user_agent)
 
         self.db_session.commit()
 
     def full_logout(self, user_id: str):
-        key = "full_logout_%s" % user_id
+        key = f"full_logout_{user_id}"
 
         self.storage.set(key, datetime.now().timestamp(), ex=config.JWT.ACCESS_EXPIRE)
         auth_token_service.delete_all_refresh_token(user_id=user_id)

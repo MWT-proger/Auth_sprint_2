@@ -220,9 +220,102 @@ update_user_swagger = \
                         "type": "string",
                         "default": "password"
                     },
+                    "old_password": {
+                        "type": "string",
+                        "default": "old_password"
+                    },
                     "email": {
                         "type": "string",
                         "default": "email"
+                    }
+                }
+            }
+        }
+    }
+
+change_password_user_swagger = \
+    {
+        "tags": [
+            "Change Password User API"
+        ],
+        "summary": "Смена пароль пользователя",
+        "security": [
+            {
+                "Bearer": []
+            }
+        ],
+        "consumes": [
+            "application/json"
+        ],
+        "parameters": [
+            {
+                "in": "body",
+                "name": "user",
+                "description": "Данные для смены пароля",
+                "schema": {
+                    "$ref": "#/definitions/UserChangePasswordSchema"
+                }
+            }
+        ],
+        "produces": [
+            "application/json"
+        ],
+        "operationId": "UserChangePasswordAPI",
+        "responses": {
+            "200": {
+                "description": "OK",
+                "examples": {
+                    "application/json": {
+                        "msg": "Password successfully changed"
+                    }
+                }
+            },
+            "500": {
+                "description": "Internal Server Error",
+                "examples": {
+                    "application/json": {
+                        "msg": "Something went wrong",
+                        "status": "error",
+                        "data": []
+                    }
+
+                }
+            },
+            "401": {
+                "description": "UNAUTHORIZED",
+                "examples": {
+                    "application/json": {
+                         "msg": "Token has been revoked",
+                         "status": "error"
+                    }
+                }
+            },
+            "400": {
+                "description": "Bad Request",
+                "examples": {
+                    "application/json": {
+                        "status": "fail",
+                        "data": [{"old_password": "Old password is incorrect"}]
+                    }
+
+                }
+            }
+        },
+        "definitions": {
+            "UserChangePasswordSchema": {
+                "type": "object",
+                "required": [
+                    "_password",
+                    "old_password"
+                ],
+                "properties": {
+                    "_password": {
+                        "type": "string",
+                        "default": "password"
+                    },
+                    "old_password": {
+                        "type": "string",
+                        "default": "old_password"
                     }
                 }
             }

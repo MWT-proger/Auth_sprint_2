@@ -2,6 +2,10 @@ import os
 from datetime import timedelta
 
 
+class AppConfig:
+    SECRET_KEY = os.getenv("SECRET_KEY")
+
+
 class DatabaseConfig:
     URI = "postgresql://{user}:{password}@{host}:{port}/{database_name}" \
         .format(
@@ -36,5 +40,7 @@ class Config:
     DB: DatabaseConfig = DatabaseConfig()
     security: SecurityConfig = SecurityConfig()
     REDIS: RedisConfig = RedisConfig()
+    APP: AppConfig = AppConfig()
+
 
 get_config = Config()

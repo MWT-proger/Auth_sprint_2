@@ -6,7 +6,7 @@ from flasgger import swag_from
 from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from schemes.login_history import LoginHistorySchema
-from schemes.user import UserRegisterSchema, UserUpdateSchema
+from schemes.user import UserRegisterSchema, UserUpdateSchema, UserChangePasswordSchema
 from services.role import role_service
 from services.user import get_user_service as user_service
 from utils.check_role import check_role
@@ -60,6 +60,27 @@ user_view = UserView.as_view("user_api")
 
 user_api.add_url_rule("/registration", view_func=user_view, methods=["POST"])
 user_api.add_url_rule("/my", view_func=user_view, methods=["GET", "PUT"])
+
+
+class ChangePassword(BaseAPI):
+    schema = UserChangePasswordSchema()
+    service = user_service
+
+    @jwt_required()
+    @swag_from(swag.change_password_user_swagger)
+    def put(self):
+        data = self.get_data()
+        if self.data_validation(data):
+            user_id = get_jwt_identity()
+
+            self.service.change_password(user_id=user_id, data=data)
+
+            return jsonify(msg="Password successfully changed")
+
+
+change_password = ChangePassword.as_view("change_password")
+
+user_api.add_url_rule("/change_password", view_func=change_password, methods=["PUT"])
 
 
 @user_api.get("/roles/<user_id>")

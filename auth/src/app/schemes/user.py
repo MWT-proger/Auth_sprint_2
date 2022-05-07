@@ -12,14 +12,23 @@ class UserRegisterSchema(ma.SQLAlchemyAutoSchema):
 class UserUpdateSchema(ma.SQLAlchemyAutoSchema):
     login = fields.Str(required=False)
     email = fields.Email(required=False)
-    _password = fields.Str(required=False)
 
     class Meta:
         model = User
-        fields = ("login", "email", "_password")
+        fields = ("login", "email")
+
+
+class UserChangePasswordSchema(ma.SQLAlchemyAutoSchema):
+    _password = fields.Str(required=True)
+    old_password = fields.Str(required=True)
+
+    class Meta:
+        model = User
+        fields = ("old_password", "_password")
 
 
 class UserLoginSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         fields = ("login", "_password")
+

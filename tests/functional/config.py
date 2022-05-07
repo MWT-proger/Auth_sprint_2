@@ -1,5 +1,5 @@
-from sqlalchemy import MetaData, create_engine
 from functional.settings import TestSettings
+from sqlalchemy import MetaData, create_engine
 
 settings = TestSettings()
 
@@ -23,6 +23,7 @@ class TestUrls:
 
     registration: str = AUTH_URL_V1 + "/users/registration"
     users_my: str = AUTH_URL_V1 + "/users/my"
+    change_password: str = AUTH_URL_V1 + "/users/change_password"
     my_login_history: str = AUTH_URL_V1 + "/users/my_login_history"
 
     get_all_roles: str = ROLE_URL_V1
