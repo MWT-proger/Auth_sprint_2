@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, json
+from werkzeug.exceptions import HTTPException
 
 bp_errors = Blueprint('errors', __name__)
 
@@ -62,4 +63,3 @@ class ResponseErrorApi:
 
 
 get_error_response = ResponseErrorApi()
-

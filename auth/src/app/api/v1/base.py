@@ -1,6 +1,7 @@
 from api.v1.response_code import ResponseErrorApi
 from flask import request
 from flask.views import MethodView
+from marshmallow.exceptions import ValidationError
 
 
 class BaseAPI(MethodView, ResponseErrorApi):
@@ -11,15 +12,12 @@ class BaseAPI(MethodView, ResponseErrorApi):
         try:
             self.schema.load(data)
             return True
-        except Exception as e:
+        except ValidationError as e:
             self.error_400(str(e))
 
     def get_data(self):
-        try:
-            data = request.json
-            return data
-        except Exception as e:
-            self.error_400(str(e))
+        data = request.json
+        return data
 
     def service_work(self, data):
         pass

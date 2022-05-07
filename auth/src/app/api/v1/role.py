@@ -18,19 +18,13 @@ class RoleView(BaseAPI):
     service = role_service
 
     def service_work(self, data):
-        try:
-            role_id = role_service.create(data)
-        except Exception as e:
-            return error_response.error_500()
+        role_id = role_service.create(data)
 
         return jsonify({"role_id": role_id, "message": "Роль успешно создана"}), HTTPStatus.OK
 
     @swag_from(get_roles)
     def get(self):
-        try:
-            roles = role_service.get_all()
-        except Exception as e:
-            return error_response.error_500()
+        roles = role_service.get_all()
 
         return jsonify({"data": roles})
 
@@ -42,10 +36,7 @@ class RoleView(BaseAPI):
         data = self.get_data()
 
         if self.data_validation(data):
-            try:
-                role = role_service.update(role_id=role_id, data=data)
-            except Exception as e:
-                return error_response.error_500(str(e))
+            role = role_service.update(role_id=role_id, data=data)
 
             return jsonify(id=role.id), HTTPStatus.OK
 
@@ -53,10 +44,7 @@ class RoleView(BaseAPI):
     @jwt_required()
     @check_role("admin")
     def delete(self, role_id):
-        try:
-            role_service.delete_by_id(role_id)
-        except Exception as e:
-            return error_response.error_500()
+        role_service.delete_by_id(role_id)
 
         return jsonify({"message": "Роль успешно удалена"})
 

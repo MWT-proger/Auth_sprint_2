@@ -21,7 +21,7 @@ run:
 run_dev: up_dev upgrade_dev
 
 up_dev:
-	docker-compose -f docker-compose.dev.yml up  --build
+	docker-compose -f docker-compose.dev.yml up -d --build
 
 upgrade_dev:
 	docker-compose -f docker-compose.dev.yml exec auth-dev-app flask db upgrade

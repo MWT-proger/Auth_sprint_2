@@ -1,3 +1,8 @@
+from flask import Flask
+from jwt_extended import init_jwt
+from swagger import init_swagger
+from werkzeug.exceptions import HTTPException
+
 from api.v1.account import auth_api
 from api.v1.response_code import bp_errors
 from api.v1.role import role_api
@@ -5,11 +10,10 @@ from api.v1.user import user_api
 from config import Config
 from database import init_db
 from datastore import init_datastore
-from flask import Flask
-from jwt_extended import init_jwt
 from ma import init_ma
 from middlewares import init_token_check
-from swagger import init_swagger
+from error import handle_exception
+
 
 config = Config()
 
@@ -20,6 +24,9 @@ app.register_blueprint(auth_api, url_prefix='/auth/api/v1/')
 app.register_blueprint(role_api, url_prefix="/role/api/v1")
 app.register_blueprint(user_api, url_prefix='/auth/api/v1/users')
 app.register_blueprint(bp_errors)
+
+app.register_error_handler(HTTPException, handle_exception)
+
 
 init_token_check(app)
 init_db(app)

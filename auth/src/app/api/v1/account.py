@@ -24,10 +24,9 @@ class LoginView(BaseAPI):
         if self.data_validation(data):
             login = data.get("login")
             password = data.get("_password")
-            try:
-                login = self.service.login(login=login, password=password, user_agent=request.user_agent)
-            except Exception as e:
-                self.error_500(str(e))
+
+            login = self.service.login(login=login, password=password, user_agent=request.user_agent)
+
             if login:
                 access, refresh = login
                 return jsonify(access_token=access, refresh_token=refresh)
@@ -58,12 +57,8 @@ def refresh_token():
 def logout():
     user_id = get_jwt_identity()
     jti = get_jwt()["jti"]
-    try:
-        account_service.logout(user_id=user_id, jti=jti, user_agent=request.user_agent)
-        return jsonify({"msg": "Success logout."})
-    except Exception as e:
-        return error_response.error_detail("Something went wrong", status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                                           detail=str(e))
+    account_service.logout(user_id=user_id, jti=jti, user_agent=request.user_agent)
+    return jsonify({"msg": "Success logout."})
 
 
 @auth_api.route("/full_logout", methods=["POST"])
@@ -71,12 +66,8 @@ def logout():
 @swag_from(swag.full_logout_swagger)
 def full_logout():
     user_id = get_jwt_identity()
-    try:
-        account_service.full_logout(user_id=user_id)
-        return jsonify({"msg": "Success logout."})
-    except Exception as e:
-        return error_response.error_detail("Something went wrong", status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                                           detail=str(e))
+    account_service.full_logout(user_id=user_id)
+    return jsonify({"msg": "Success logout."})
 
 
 @auth_api.route("/protected", methods=["GET"])
