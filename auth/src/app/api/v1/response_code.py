@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify
+from http import HTTPStatus
 
 bp_errors = Blueprint('errors', __name__)
 
@@ -40,11 +41,11 @@ class ResponseErrorApi:
 
     def error_500(self, e: str = None):
         if e:
-            raise self.invalid_class("Something went wrong", status_code=500, payload={"data": e})
-        raise self.invalid_class("Something went wrong", status_code=500)
+            raise self.invalid_class("Something went wrong", status_code=HTTPStatus.INTERNAL_SERVER_ERROR, payload={"data": e})
+        raise self.invalid_class("Something went wrong", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def error_400(self, e):
-        raise self.invalid_class("The data is incorrect", status_code=400, payload={"data": e})
+        raise self.invalid_class("The data is incorrect", status_code=HTTPStatus.BAD_REQUEST, payload={"data": e})
 
     def error_basic(self, message, code, error: str = None):
         raise self.invalid_class(message, status_code=code, payload={"data": error})

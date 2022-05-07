@@ -8,9 +8,12 @@ from flask import Flask
 from jwt_extended import init_jwt
 from ma import init_ma
 from swagger import init_swagger
+from config import Config
+
+config = Config()
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "super-secret"
+app.config["SECRET_KEY"] = config.APP.SECRET_KEY
 
 app.register_blueprint(auth_api, url_prefix='/auth/api/v1/')
 app.register_blueprint(role_api, url_prefix="/role/api/v1")
@@ -24,7 +27,6 @@ init_jwt(app)
 init_swagger(app)
 
 app.app_context().push()
-
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)

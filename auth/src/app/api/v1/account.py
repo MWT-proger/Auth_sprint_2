@@ -8,6 +8,7 @@ from flask_jwt_extended import (create_access_token, get_jwt, get_jwt_identity,
 from schemes.user import UserLoginSchema
 from services.account import get_account_service as account_service
 from services.auth_token import get_auth_token_service as auth_token_service
+from http import HTTPStatus
 
 auth_api = Blueprint("auth_api", __name__)
 
@@ -27,12 +28,10 @@ class LoginView(BaseAPI):
             except Exception as e:
                 self.error_500(str(e))
             if login:
-                try:
-                    access, refresh = login
-                    return jsonify(access_token=access, refresh_token=refresh)
-                except Exception as e:
-                    self.error_500(str(e))
-            self.error("Wrong login or password", status_code=401)
+                access, refresh = login
+                return jsonify(access_token=access, refresh_token=refresh)
+
+            self.error("Wrong login or password", status_code=HTTPStatus.UNAUTHORIZED)
 
 
 @auth_api.route("/refresh", methods=["POST"])
@@ -49,7 +48,7 @@ def refresh_token():
         access = create_access_token(identity=identity)
         return jsonify(access_token=access, refresh_token=new_refresh)
 
-    return error_response.error("Token has been revoked", status_code=401)
+    return error_response.error("Token has been revoked", status_code=HTTPStatus.UNAUTHORIZED)
 
 
 @auth_api.route("/logout", methods=["POST"])
@@ -62,7 +61,8 @@ def logout():
         account_service.logout(user_id=user_id, jti=jti, user_agent=request.user_agent)
         return jsonify({"msg": "Success logout."})
     except Exception as e:
-        return error_response.error_detail("Something went wrong", status_code=500, detail=str(e))
+        return error_response.error_detail("Something went wrong", status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                                           detail=str(e))
 
 
 @auth_api.route("/full_logout", methods=["POST"])
@@ -74,7 +74,8 @@ def full_logout():
         account_service.full_logout(user_id=user_id)
         return jsonify({"msg": "Success logout."})
     except Exception as e:
-        return error_response.error_detail("Something went wrong", status_code=500, detail=str(e))
+        return error_response.error_detail("Something went wrong", status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                                           detail=str(e))
 
 
 @auth_api.route("/protected", methods=["GET"])

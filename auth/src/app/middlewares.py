@@ -8,8 +8,8 @@ def check_if_token_is_revoked(jwt_header, jwt_payload):
     user_id = jwt_payload["sub"]
     iat = jwt_payload["iat"]
 
-    key_full_logout = "full_logout_%s" % user_id
-    key = "revoked_token_%s" % jti
+    key_full_logout = f"full_logout_{user_id}"
+    key = f"revoked_token_{jti}"
 
     full_logout = redis_conn.get(key_full_logout)
 

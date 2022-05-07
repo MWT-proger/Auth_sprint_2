@@ -3,6 +3,7 @@ from database import db
 from datastore import datastore
 from models import LoginHistory, RoleEnum, User
 from werkzeug.security import generate_password_hash
+from http import HTTPStatus
 
 
 class UserService:
@@ -15,12 +16,12 @@ class UserService:
     def check_exist_email(self, email):
         is_existed_email = self.get_by_email(email)
         if is_existed_email:
-            return error_response.fail({"email": "email already exists"}, status_code=400)
+            return error_response.fail({"email": "email already exists"}, status_code=HTTPStatus.BAD_REQUEST)
 
     def check_exist_login(self, login):
         is_existed_login = self.get_by_login(login)
         if is_existed_login:
-            return error_response.fail({"login": "login already exists"}, status_code=400)
+            return error_response.fail({"login": "login already exists"}, status_code=HTTPStatus.BAD_REQUEST)
 
     def create(self, data: dict):
         login = data.get("login")
