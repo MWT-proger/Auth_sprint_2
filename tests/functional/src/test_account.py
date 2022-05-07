@@ -2,9 +2,9 @@ from http import HTTPStatus
 
 import pytest
 from functional.config import TestFilesPath, TestUrls
-from functional.utils import app_logger, get_data
+from functional.models import Role, RolesUsers, User
 from functional.testdata import data_account
-from functional.models import User, RolesUsers, Role
+from functional.utils import app_logger, get_data
 
 urls = TestUrls()
 test_data = TestFilesPath()

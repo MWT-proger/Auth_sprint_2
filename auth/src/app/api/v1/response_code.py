@@ -1,5 +1,6 @@
-from flask import Blueprint, jsonify
 from http import HTTPStatus
+
+from flask import Blueprint, jsonify
 
 bp_errors = Blueprint('errors', __name__)
 

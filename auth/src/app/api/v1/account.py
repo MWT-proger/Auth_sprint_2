@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
 from api.v1.swag import account as swag
@@ -8,7 +10,6 @@ from flask_jwt_extended import (create_access_token, get_jwt, get_jwt_identity,
 from schemes.user import UserLoginSchema
 from services.account import get_account_service as account_service
 from services.auth_token import get_auth_token_service as auth_token_service
-from http import HTTPStatus
 
 auth_api = Blueprint("auth_api", __name__)
 

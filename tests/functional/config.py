@@ -1,5 +1,5 @@
-from sqlalchemy import MetaData, create_engine
 from functional.settings import TestSettings
+from sqlalchemy import MetaData, create_engine
 
 settings = TestSettings()
 

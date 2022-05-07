@@ -1,7 +1,7 @@
 from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
 from api.v1.swag import user as swag
-from api.v1.swag.role import get_user_role, add_role, remove_role
+from api.v1.swag.role import add_role, get_user_role, remove_role
 from flasgger import swag_from
 from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required

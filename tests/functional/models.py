@@ -3,14 +3,13 @@ from enum import Enum
 from uuid import uuid4
 
 from flask_security import RoleMixin, UserMixin
-from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Column, String, DateTime, Boolean, Text, ForeignKey, UniqueConstraint, create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.inspection import inspect
-
 from functional.config import DatabaseConfig
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, MetaData,
+                        String, Text, UniqueConstraint, create_engine)
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import backref, relationship
 
 db_config = DatabaseConfig()
 metadata_obj = MetaData(schema=db_config.SCHEMA)
