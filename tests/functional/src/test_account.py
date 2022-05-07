@@ -42,19 +42,26 @@ async def test_registration_error(make_post_request, db_session, role_reg_to_pg,
 
 
 @pytest.mark.asyncio
-async def test_login_ok_error(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
+async def test_login_error_wrong(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
 
     response = await make_post_request(urls.login, data=data_account.user_login_invalid)
 
     assert response.status == HTTPStatus.UNAUTHORIZED
     assert response.body == {'msg': 'Wrong login or password', 'status': 'error'}
 
+
+@pytest.mark.asyncio
+async def test_login_error_required_file(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
     response = await make_post_request(urls.login, data=data_account.user_login_error)
 
     assert response.status == HTTPStatus.BAD_REQUEST
     assert response.body["data"] == "{'_password': ['Missing data for required field.']}"
 
+
+@pytest.mark.asyncio
+async def test_login_ok(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
     response = await make_post_request(urls.login, data=data_account.user_login)
+
     assert response.status == HTTPStatus.OK
 
 
@@ -70,7 +77,7 @@ async def test_protected(make_post_request, make_get_request, db_session, role_r
 
 
 @pytest.mark.asyncio
-async def test_refresh(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
+async def test_refresh_ok_invalid(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
     response = await make_post_request(urls.login, data=data_account.user_login)
     refresh_token = response.body["refresh_token"]
     access_token = response.body["access_token"]
@@ -91,13 +98,31 @@ async def test_refresh(make_post_request, db_session, role_reg_to_pg, account_us
 
 
 @pytest.mark.asyncio
-async def test_get_and_put_user(make_post_request, make_get_request,  make_put_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
+async def test_refresh_no_access(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
+    response = await make_post_request(urls.login, data=data_account.user_login)
+    access_token = response.body["access_token"]
+
+    response = await make_post_request(urls.refresh, headers={"Authorization": f"Bearer {access_token}"})
+
+    assert response.status == HTTPStatus.UNPROCESSABLE_ENTITY
+    assert response.body["msg"] == "Only refresh tokens are allowed"
+
+
+@pytest.mark.asyncio
+async def test_get_user(make_post_request, make_get_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
     response = await make_post_request(urls.login, data=data_account.user_login)
     access_token = response.body["access_token"]
 
     response = await make_get_request(urls.users_my, headers={"Authorization": f"Bearer {access_token}"})
+
     assert response.body["login"] == data_account.users[0]["login"]
     assert response.body["email"] == data_account.users[0]["email"]
+
+
+@pytest.mark.asyncio
+async def test_put_user_invalid_login(make_post_request, make_put_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
+    response = await make_post_request(urls.login, data=data_account.user_login)
+    access_token = response.body["access_token"]
 
     response = await make_put_request(urls.users_my,
                                       headers={"Authorization": f"Bearer {access_token}"},
@@ -106,12 +131,24 @@ async def test_get_and_put_user(make_post_request, make_get_request,  make_put_r
     assert response.status == HTTPStatus.BAD_REQUEST
     assert response.body["data"] == {'login': 'login already exists'}
 
+
+@pytest.mark.asyncio
+async def test_put_user_invalid_email(make_post_request, make_put_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
+    response = await make_post_request(urls.login, data=data_account.user_login)
+    access_token = response.body["access_token"]
+
     response = await make_put_request(urls.users_my,
                                       headers={"Authorization": f"Bearer {access_token}"},
                                       data=data_account.user_update_invalid_email)
 
     assert response.status == HTTPStatus.BAD_REQUEST
     assert response.body["data"] == {'email': 'email already exists'}
+
+
+@pytest.mark.asyncio
+async def test_put_user_ok(make_post_request, make_put_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
+    response = await make_post_request(urls.login, data=data_account.user_login)
+    access_token = response.body["access_token"]
 
     response = await make_put_request(urls.users_my,
                                       headers={"Authorization": f"Bearer {access_token}"},
@@ -144,7 +181,6 @@ async def test_change_password_user_ok(make_post_request, make_put_request, db_s
 
     assert response.status == HTTPStatus.OK
     assert response.body == {"msg": "Password successfully changed"}
-
     response = await make_post_request(urls.login, data=data_account.user_login)
     assert response.status == HTTPStatus.UNAUTHORIZED
 
@@ -159,31 +195,17 @@ async def test_get_login_history(make_post_request, make_get_request, db_session
     assert response.status == HTTPStatus.OK
     assert len(response.body) == 1
 
-    response = await make_post_request(urls.login, data=data_account.user_login)
-    access_token = response.body["access_token"]
-
-    response = await make_get_request(urls.my_login_history, headers={"Authorization": f"Bearer {access_token}"})
-
-    assert response.status == HTTPStatus.OK
-    assert len(response.body) == 2
-
 
 @pytest.mark.asyncio
-async def test_logout(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
-    """
-    Тест проверяет выход используя истёкший токен, валидный токен и отозванный токен.
-    :param make_post_request:
-    :param db_session:
-    :param role_reg_to_pg:
-    :param account_user_to_pg:
-    :param delete_data_all:
-    :return:
-    """
+async def test_logout_invalid(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
     response = await make_post_request(urls.logout, headers={"Authorization": f"Bearer {data_account.invalid_refresh}"})
 
     assert response.status == HTTPStatus.UNAUTHORIZED
     assert response.body == {"msg": "Token has expired"}
 
+
+@pytest.mark.asyncio
+async def test_logout_ok(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
     response = await make_post_request(urls.login, data=data_account.user_login)
     access_token = response.body["access_token"]
 
@@ -192,23 +214,9 @@ async def test_logout(make_post_request, db_session, role_reg_to_pg, account_use
     assert response.status == HTTPStatus.OK
     assert response.body == {"msg": "Success logout."}
 
-    response = await make_post_request(urls.logout, headers={"Authorization": f"Bearer {access_token}"})
-
-    assert response.status == HTTPStatus.UNAUTHORIZED
-    assert response.body == {"msg": "Token has been revoked"}
-
 
 @pytest.mark.asyncio
-async def test_full_logout(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
-    """
-    Тест проверяет выход используя истёкший токен, валидный токен и отозванный токен.
-    :param make_post_request:
-    :param db_session:
-    :param role_reg_to_pg:
-    :param account_user_to_pg:
-    :param delete_data_all:
-    :return:
-    """
+async def test_full_logout_invalid(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
 
     response = await make_post_request(urls.full_logout,
                                        headers={"Authorization": f"Bearer {data_account.invalid_refresh}"})
@@ -216,9 +224,12 @@ async def test_full_logout(make_post_request, db_session, role_reg_to_pg, accoun
     assert response.status == HTTPStatus.UNAUTHORIZED
     assert response.body == {"msg": "Token has expired"}
 
+
+@pytest.mark.asyncio
+async def test_full_logout_ok(make_post_request, db_session, role_reg_to_pg, account_user_to_pg, delete_data_all):
+    """Проверка выхода со всех устройств"""
     response = await make_post_request(urls.login, data=data_account.user_login)
     access_token = response.body["access_token"]
-
     response = await make_post_request(urls.login, data=data_account.user_login)
     access_token_other = response.body["access_token"]
 
@@ -228,11 +239,9 @@ async def test_full_logout(make_post_request, db_session, role_reg_to_pg, accoun
     assert response.body == {"msg": "Success logout."}
 
     response = await make_post_request(urls.full_logout, headers={"Authorization": f"Bearer {access_token_other}"})
-
     assert response.status == HTTPStatus.UNAUTHORIZED
     assert response.body == {"msg": "Token has been revoked"}
 
     response = await make_post_request(urls.full_logout, headers={"Authorization": f"Bearer {access_token}"})
-
     assert response.status == HTTPStatus.UNAUTHORIZED
     assert response.body == {"msg": "Token has been revoked"}
