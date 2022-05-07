@@ -87,10 +87,8 @@ user_api.add_url_rule("/change_password", view_func=change_password, methods=["P
 @jwt_required()
 @swag_from(get_user_role)
 def get_user_role(user_id):
-    try:
-        roles = role_service.get_user_role(user_id)
-    except Exception as e:
-        return error_response.error_500(str(e))
+    roles = role_service.get_user_role(user_id)
+
     return jsonify(roles=roles)
 
 
@@ -99,11 +97,7 @@ def get_user_role(user_id):
 @check_role("admin")
 @swag_from(add_role)
 def add_role(user_id, role_id):
-    try:
-        role_service.add_role_to_user(user_id, role_id)
-    except Exception as e:
-        return error_response.error_500(str(e))
-
+    role_service.add_role_to_user(user_id, role_id)
     return jsonify(message="Role added successfully")
 
 
@@ -112,10 +106,7 @@ def add_role(user_id, role_id):
 @check_role("admin")
 @swag_from(remove_role)
 def delete_role(user_id, role_id):
-    try:
-        role_service.delete_role_from_user(user_id, role_id)
-    except Exception as e:
-        return error_response.error_500(str(e))
+    role_service.delete_role_from_user(user_id, role_id)
 
     return jsonify(message="Role deleted successfully")
 
@@ -127,8 +118,5 @@ def get_login_history_view():
     current_user = get_jwt_identity()
 
     login_history, error = user_service.get_login_history(user_id=current_user)
-
-    if not login_history:
-        return error_response.error_500()
 
     return jsonify(LoginHistorySchema(many=True).dump(login_history))

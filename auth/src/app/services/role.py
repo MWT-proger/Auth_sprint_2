@@ -1,25 +1,11 @@
+from http import HTTPStatus
+
 from api.v1.response_code import get_error_response as error_response
 from database import session_scope
 from datastore import datastore
 from models import Role
 from services.user import get_user_service as user_service
 from sqlalchemy.exc import IntegrityError
-
-
-class AddRoleException(Exception):
-    pass
-
-
-class DeleteRoleException(Exception):
-    pass
-
-
-class UserNotFound(Exception):
-    pass
-
-
-class RoleNotFound(Exception):
-    pass
 
 
 class RoleDuplication(Exception):
@@ -90,13 +76,16 @@ class RoleService:
         role = self.get_role_by_id(role_id)
 
         if not user:
-            raise UserNotFound("User with this id not found")
+            return error_response.fail("User with this id not found",
+                                       status_code=HTTPStatus.BAD_REQUEST)
 
         if not role:
-            raise RoleNotFound("Role with this id not found")
+            return error_response.fail("Role with this id not found",
+                                       status_code=HTTPStatus.BAD_REQUEST)
 
         if user.has_role(role):
-            raise AddRoleException("User already has this role")
+            return error_response.fail("User already has this role",
+                                       status_code=HTTPStatus.BAD_REQUEST)
 
         with session_scope():
             datastore.add_role_to_user(user, role)
@@ -106,13 +95,16 @@ class RoleService:
         role = self.get_role_by_id(role_id)
 
         if not user:
-            raise UserNotFound("User with this id not found")
+            return error_response.fail("User with this id not found",
+                                       status_code=HTTPStatus.BAD_REQUEST)
 
         if not role:
-            raise RoleNotFound("Role with this id not found")
+            return error_response.fail("Role with this id not found",
+                                       status_code=HTTPStatus.BAD_REQUEST)
 
         if not user.has_role(role):
-            raise DeleteRoleException("User hasn't this role")
+            return error_response.fail("User hasn't this role",
+                                       status_code=HTTPStatus.BAD_REQUEST)
 
         with session_scope():
             datastore.remove_role_from_user(user, role)

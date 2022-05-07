@@ -55,10 +55,9 @@ async def test_add_role_to_user_error(make_post_request, get_access):
         urls.add_role_to_user + f"/{role_data.user.get('id')}/{role_data.roles[0].get('id')}",
         headers={"Authorization": f"Bearer {get_access}"})
 
-    assert response.status == HTTPStatus.INTERNAL_SERVER_ERROR
+    assert response.status == HTTPStatus.BAD_REQUEST
     assert response.body == {"data": "User already has this role",
-                             "msg": "Something went wrong",
-                             "status": "error"}
+                             "status": "fail"}
 
 
 @pytest.mark.asyncio
@@ -77,10 +76,9 @@ async def test_delete_role_to_user_error(make_delete_request, get_access):
         urls.add_role_to_user + f"/{role_data.user.get('id')}/{role_data.roles[0].get('id')}",
         headers={"Authorization": f"Bearer {get_access}"})
 
-    assert response.status == HTTPStatus.INTERNAL_SERVER_ERROR
+    assert response.status == HTTPStatus.BAD_REQUEST
     assert response.body == {"data": "User hasn't this role",
-                             "msg": "Something went wrong",
-                             "status": "error"}
+                             "status": "fail"}
 
 
 @pytest.mark.asyncio
@@ -89,10 +87,9 @@ async def test_delete_not_found_user(make_delete_request, get_access):
         urls.add_role_to_user + f"/{role_data.error_user_id}/{role_data.roles[0].get('id')}",
         headers={"Authorization": f"Bearer {get_access}"})
 
-    assert response.status == HTTPStatus.INTERNAL_SERVER_ERROR
+    assert response.status == HTTPStatus.BAD_REQUEST
     assert response.body == {"data": "User with this id not found",
-                             "msg": "Something went wrong",
-                             "status": "error"}
+                             "status": "fail"}
 
 
 @pytest.mark.asyncio
@@ -101,7 +98,6 @@ async def test_delete_not_found_role(make_delete_request, get_access):
         urls.add_role_to_user + f"/{role_data.user.get('id')}/{role_data.error_role_id}",
         headers={"Authorization": f"Bearer {get_access}"})
 
-    assert response.status == HTTPStatus.INTERNAL_SERVER_ERROR
+    assert response.status == HTTPStatus.BAD_REQUEST
     assert response.body == {"data": "Role with this id not found",
-                             "msg": "Something went wrong",
-                             "status": "error"}
+                             "status": "fail"}
