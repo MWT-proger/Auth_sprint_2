@@ -34,4 +34,3 @@ def check_if_token_is_revoked(jwt_header, jwt_payload):
         token_in_redis = redis_conn.get(key)
 
     return token_in_redis is not None
-

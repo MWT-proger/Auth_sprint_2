@@ -21,10 +21,16 @@ class AccountService:
         self.db_session.add(login_history)
         return login_history
 
-    def login(self, login: str, password: str, user_agent: str):
-        user = user_service.get_by_login(login)
-        if not user or not check_password_hash(user._password, password):
-            return False
+    def login(self,
+              user_agent: str,
+              user=None,
+              login: str = None,
+              password: str = None,
+              without_verification: bool = False):
+        if not without_verification or not user:
+            user = user_service.get_by_login(login)
+            if not user or not check_password_hash(user._password, password):
+                return False
 
         self.add_login_history(user_id=user.id, user_agent=user_agent.string)
         access, refresh = auth_token_service.get_tokens_pair(user.id)

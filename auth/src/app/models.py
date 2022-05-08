@@ -83,3 +83,18 @@ class AuthToken(db.Model):
     user_agent = db.Column(db.Text, nullable=False)
     refresh_token = db.Column(db.Text, nullable=False)
 
+
+class SocialAccount(db.Model):
+    __tablename__ = "social_accounts"
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("content.users.id"), nullable=False)
+    user = db.relationship(User, backref=db.backref("social_accounts", lazy=True))
+
+    social_id = db.Column(db.String(255), nullable=False)
+    social_name = db.Column(db.String(255), nullable=False)
+
+    __table_args__ = (db.UniqueConstraint("social_id", "social_name", name="social_uc"), )
+
+    def __repr__(self):
+        return f'<SocialAccount {self.social_name}:{self.user_id}>'

@@ -89,3 +89,19 @@ class AuthToken(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     user_agent = Column(Text, nullable=False)
     refresh_token = Column(Text, nullable=False)
+
+
+class SocialAccount(Base):
+    __tablename__ = "social_accounts"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("content.users.id"), nullable=False)
+    user = relationship(User, backref=backref("social_accounts", lazy=True))
+
+    social_id = Column(String(255), nullable=False)
+    social_name = Column(String(255), nullable=False)
+
+    __table_args__ = (UniqueConstraint("social_id", "social_name", name="social_uc"), )
+
+    def __repr__(self):
+        return f'<SocialAccount {self.social_name}:{self.user_id}>'

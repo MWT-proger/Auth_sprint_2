@@ -15,3 +15,4 @@ marshmallow-sqlalchemy==0.22.3
 Flask-Migrate==3.1.0
 Flask-Script==2.0.6
 redis==4.2.2
+rauth==0.7.0
