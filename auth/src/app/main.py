@@ -4,6 +4,7 @@ from swagger import init_swagger
 from werkzeug.exceptions import HTTPException
 
 from api.v1.account import auth_api
+from api.v1.file import file_api
 from api.v1.oauth import oauth_api
 from api.v1.response_code import bp_errors
 from api.v1.role import role_api
@@ -26,6 +27,7 @@ app.register_blueprint(auth_api, url_prefix='/auth/api/v1/')
 app.register_blueprint(role_api, url_prefix="/role/api/v1")
 app.register_blueprint(user_api, url_prefix='/auth/api/v1/users')
 app.register_blueprint(oauth_api, url_prefix='/auth/api/v1/oauth')
+app.register_blueprint(file_api, url_prefix='/')
 app.register_blueprint(bp_errors)
 
 app.register_error_handler(HTTPException, handle_exception)
