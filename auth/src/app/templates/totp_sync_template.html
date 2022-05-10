@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="qr"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script>
+  (function () {
+    var qr = new QRious({
+      element: document.getElementById('qr'),
+      value: '{{provisioning_url}}'
+    });
+  })();
+</script>
+<p>Просканируйте QR-код с помощью TOTP-приложения</p>
+</body>
+</html>

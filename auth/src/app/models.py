@@ -98,3 +98,14 @@ class SocialAccount(db.Model):
 
     def __repr__(self):
         return f'<SocialAccount {self.social_name}:{self.user_id}>'
+
+
+class MultiFactorAuthentication(db.Model):
+    __tablename__ = "mf_authentication"
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("content.users.id"), nullable=False)
+    user = db.relationship(User, backref=db.backref("mf_authentication", lazy=True))
+
+    secret = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.Boolean(), default=False)

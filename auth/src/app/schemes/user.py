@@ -28,7 +28,9 @@ class UserChangePasswordSchema(ma.SQLAlchemyAutoSchema):
 
 
 class UserLoginSchema(ma.SQLAlchemyAutoSchema):
+    code_2fa = fields.Str(required=False)
+
     class Meta:
         model = User
-        fields = ("login", "_password")
+        fields = ("login", "_password", "code_2fa")
 

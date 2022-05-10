@@ -26,7 +26,7 @@ class SecurityConfig:
 
 class JWTConfig:
     SECRET_KEY = "super-secret"
-    ACCESS_EXPIRE = timedelta(minutes=5)
+    ACCESS_EXPIRE = timedelta(minutes=15)
     REFRESH_EXPIRE = timedelta(days=15)
 
 
