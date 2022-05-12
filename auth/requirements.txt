@@ -17,3 +17,5 @@ Flask-Script==2.0.6
 redis==4.2.2
 rauth==0.7.0
 pyotp==2.4.1
+grpcio==1.46.0
+grpcio-tools==1.46.0

@@ -1,8 +1,3 @@
-from flask import Flask
-from jwt_extended import init_jwt
-from swagger import init_swagger
-from werkzeug.exceptions import HTTPException
-
 from api.v1.account import auth_api
 from api.v1.file import file_api
 from api.v1.oauth import oauth_api
@@ -12,11 +7,14 @@ from api.v1.user import user_api
 from config import Config
 from database import init_db
 from datastore import init_datastore
+from error import handle_exception
+from flask import Flask
+from jwt_extended import init_jwt
 from ma import init_ma
 from middlewares import init_token_check
-from error import handle_exception
 from oauth import init_oauth
-
+from swagger import init_swagger
+from werkzeug.exceptions import HTTPException
 
 config = Config()
 

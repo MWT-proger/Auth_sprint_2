@@ -1,13 +1,13 @@
+from datetime import datetime
 from http import HTTPStatus
 
-from datetime import datetime
 import pyotp
+from api.v1.response_code import get_error_response as error_response
 from config import get_config as config
 from database import db
 from models import LoginHistory, MultiFactorAuthentication
 from redis import Redis
 from redis_db import redis_conn
-from api.v1.response_code import get_error_response as error_response
 from services.auth_token import get_auth_token_service as auth_token_service
 from services.user import get_user_service as user_service
 from werkzeug.security import check_password_hash

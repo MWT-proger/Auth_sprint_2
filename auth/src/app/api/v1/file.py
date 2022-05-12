@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint
+from flask import Blueprint, render_template
 
 file_api = Blueprint("file_api", __name__)
 

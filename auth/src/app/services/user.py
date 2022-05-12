@@ -3,9 +3,9 @@ from http import HTTPStatus
 from api.v1.response_code import get_error_response as error_response
 from database import db, session_scope
 from datastore import datastore
-from models import LoginHistory, RoleEnum, User, SocialAccount
-from werkzeug.security import generate_password_hash, check_password_hash
+from models import LoginHistory, RoleEnum, SocialAccount, User
 from utils import generate
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 class UserService:

@@ -1,8 +1,8 @@
 import json
 import random
 
+from flask import current_app, redirect, request, session, url_for
 from rauth import OAuth1Service, OAuth2Service
-from flask import current_app, url_for, request, redirect, session
 
 
 class OAuthSignIn(object):

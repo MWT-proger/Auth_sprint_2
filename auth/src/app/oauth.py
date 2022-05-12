@@ -1,6 +1,7 @@
 from config import get_config as config
 from flask import Flask
 
+
 # TODO # secret вынести в ключи
 def init_oauth(app: Flask):
     app.config["OAUTH_CREDENTIALS"] = {

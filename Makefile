@@ -18,10 +18,16 @@ run:
 	docker-compose -f docker-compose.yml up --build -d
 
 # Блок разработки
-run_dev: up_dev upgrade_dev
+run_dev: dev_full_upload upgrade_dev
 
 up_dev:
 	docker-compose -f docker-compose.dev.yml up --build
+
+dev_full_upload:
+	docker-compose -f docker-compose.dev.yml up -d --build
+	docker-compose -f docker-compose.dev.yml exec movies_dev python manage.py migrate movies --fake
+	docker-compose -f docker-compose.dev.yml exec movies_dev python manage.py migrate
+	docker-compose -f docker-compose.dev.yml exec movies_dev python manage.py collectstatic --noinput
 
 upgrade_dev:
 	docker-compose -f docker-compose.dev.yml exec auth-dev-app flask db upgrade

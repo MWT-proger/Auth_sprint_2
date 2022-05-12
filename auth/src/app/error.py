@@ -1,8 +1,7 @@
 from http import HTTPStatus
 
-from flask import jsonify, json
-
 from api.v1.response_code import InvalidAPIUsage
+from flask import json, jsonify
 from logger import logger
 
 

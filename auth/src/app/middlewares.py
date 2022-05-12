@@ -1,6 +1,5 @@
-from flask import Flask, g, jsonify, request
+from flask import Flask, g, request
 from jwt_extended import jwt
-
 from redis_db import redis_conn
 
 

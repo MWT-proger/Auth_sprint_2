@@ -5,13 +5,12 @@ from api.v1.base import BaseAPI
 from api.v1.response_code import get_error_response as error_response
 from api.v1.swag import account as swag
 from flasgger import swag_from
-from flask import Blueprint, jsonify, request, render_template
-from flask_jwt_extended import (get_jwt, get_jwt_identity,
-                                jwt_required)
+from flask import Blueprint, jsonify, render_template, request
+from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
+from models import MultiFactorAuthentication
 from schemes.user import UserLoginSchema
 from services.account import get_account_service as account_service
 from services.auth_token import get_auth_token_service as auth_token_service
-from models import MultiFactorAuthentication
 
 auth_api = Blueprint("auth_api", __name__)
 

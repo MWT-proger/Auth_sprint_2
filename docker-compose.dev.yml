@@ -22,7 +22,8 @@ services:
       - ./auth/:/usr/src/auth/
     ports:
       - "5000:5000"
-    command: python app/main.py
+      - "50055:50055"
+    #    command: python app/main.py
     env_file:
       - .env.dev
     depends_on:
@@ -31,8 +32,72 @@ services:
   auth-dev-redis:
     image: redis:alpine
     restart: always
+    command: --port 6378
+    ports:
+      - "6378:6378"
+
+  movies-db_dev:
+    image: postgres:14-alpine
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data/
+      - ./postgre/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    env_file:
+      - .env.async
+    expose:
+      - 5432
+
+  movies_dev:
+    command: python manage.py runserver 0.0.0.0:9000
+    image: mwtechdocker2/admin_panel:v1
+    volumes:
+      - static_volume_dev:/usr/src/app/static
+    ports:
+      - "8000:9000"
+    env_file:
+      - .env.async
+    depends_on:
+      - movies-db_dev
+
+  fastapi_dev:
+    build: ./fastapi
+    volumes:
+      - ./fastapi/:/usr/src/fastapi/
+    ports:
+      - "9000:9000"
+    env_file:
+      - .env.async
+    depends_on:
+      - movies-db_dev
+
+  elasticsearch_dev:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms200m -Xmx200m
+    ports:
+      - "9200:9200"
+
+  etl_dev:
+    image: mwtechdocker/etl:v1
+    deploy:
+      restart_policy:
+        delay: 5s
+        window: 5s
+    env_file:
+      - .env.async
+    volumes:
+      - ./etl/volumes/:/usr/src/etl/volumes/
+    depends_on:
+      - movies-db_dev
+      - elasticsearch_dev
+
+  redis_dev:
+    image: redis:alpine
+    restart: always
     ports:
       - "6379:6379"
 
 volumes:
+  postgres_data_dev:
+  static_volume_dev:
   postgres_auth_data:

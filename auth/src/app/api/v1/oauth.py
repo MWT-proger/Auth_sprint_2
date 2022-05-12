@@ -1,11 +1,12 @@
 from http import HTTPStatus
-from flask import redirect, url_for, render_template, Blueprint, jsonify, request
 
 from api.v1.response_code import get_error_response
-from services.oauth import OAuthSignIn
-from services.account import get_account_service as account_service
-from services.user import get_user_service as user_service
+from flask import (Blueprint, jsonify, redirect, render_template, request,
+                   url_for)
 from models import SocialAccount
+from services.account import get_account_service as account_service
+from services.oauth import OAuthSignIn
+from services.user import get_user_service as user_service
 
 oauth_api = Blueprint("oauth_api", __name__)
 

@@ -15,5 +15,8 @@ RUN pip install -r dev_requirements.txt
 COPY ./src /src
 WORKDIR /usr/src/auth/src
 
-ENTRYPOINT flask db init
-ENTRYPOINT python app/main.py
+#ENTRYPOINT flask db init
+CMD ./start_processes.sh
+
+
+
