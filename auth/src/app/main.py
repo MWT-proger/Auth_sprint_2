@@ -22,7 +22,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = config.APP.SECRET_KEY
 
 app.register_blueprint(auth_api, url_prefix='/auth/api/v1/')
-app.register_blueprint(role_api, url_prefix="/role/api/v1")
+app.register_blueprint(role_api, url_prefix="/auth/role/api/v1")
 app.register_blueprint(user_api, url_prefix='/auth/api/v1/users')
 app.register_blueprint(oauth_api, url_prefix='/auth/api/v1/oauth')
 app.register_blueprint(file_api, url_prefix='/')
