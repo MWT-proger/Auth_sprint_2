@@ -8,7 +8,7 @@ BASE = "{protocol}://{host}:{port}".format(protocol=settings.service_protocol,
                                            port=settings.service_port)
 
 AUTH_URL_V1 = f"{BASE}/auth/api/v1"
-ROLE_URL_V1 = f"{BASE}/role/api/v1"
+ROLE_URL_V1 = f"{BASE}/auth/role/api/v1"
 
 BASE_TEST_PATH = "tests/functional/testdata/"
 

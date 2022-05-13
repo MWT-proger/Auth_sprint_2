@@ -13,7 +13,7 @@ class TestSettings(BaseSettings):
     redis_port: str = Field("6379", env="REDIS_PORT")
 
     service_protocol: str = Field("http", env="SERVICE_PROTOCOL")
-    service_host: str = Field("host.docker.internal", env="SERVICE_HOST")
-    service_port: str = Field("5000", env="SERVICE_PORT")
+    service_host: str = Field("localhost", env="SERVICE_HOST")
+    service_port: str = Field("80", env="SERVICE_PORT")
 
 
