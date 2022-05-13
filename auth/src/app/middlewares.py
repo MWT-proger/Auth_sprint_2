@@ -1,6 +1,11 @@
-from flask import Flask, g, request
+import datetime
+
+from config import Config
+from flask import Flask, g, jsonify, request
 from jwt_extended import jwt
-from redis_db import redis_conn
+from redis_db import redis_conn, redis_rate_limit
+
+config = Config()
 
 
 def init_token_check(app: Flask):
@@ -9,6 +14,22 @@ def init_token_check(app: Flask):
         authorization = request.headers.get("Authorization")
         if authorization:
             g.access_token = authorization.split()[1]
+
+
+def init_rate_limit(app: Flask):
+    @app.before_request
+    def rate_limit():
+        pipe = redis_rate_limit.pipeline()
+        now = datetime.datetime.now()
+        key = f"{request.remote_addr}:{now.minute}"
+
+        pipe.incr(key, 1)
+        pipe.expire(key, config.RATE_LIMIT.TIME)
+
+        result = pipe.execute()
+
+        if result[0] > config.RATE_LIMIT.MAX_CALLS:
+            return jsonify(message="you have exceeded the allowed number of requests")
 
 
 @jwt.token_in_blocklist_loader
