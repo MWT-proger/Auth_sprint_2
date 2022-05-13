@@ -1,4 +1,5 @@
 import datetime
+from http import HTTPStatus
 
 from config import Config
 from flask import Flask, g, jsonify, request
@@ -29,7 +30,8 @@ def init_rate_limit(app: Flask):
         result = pipe.execute()
 
         if result[0] > config.RATE_LIMIT.MAX_CALLS:
-            return jsonify(message="you have exceeded the allowed number of requests")
+            return jsonify(
+                message="you have exceeded the allowed number of requests"), HTTPStatus.TOO_MANY_REQUESTS
 
 
 @jwt.token_in_blocklist_loader
