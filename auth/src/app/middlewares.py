@@ -34,6 +34,14 @@ def init_rate_limit(app: Flask):
                 message="you have exceeded the allowed number of requests"), HTTPStatus.TOO_MANY_REQUESTS
 
 
+def init_check_request_id(app: Flask):
+    @app.before_request
+    def check_request():
+        request_id = request.headers.get("X-Request-Id")
+        if not request_id:
+            return jsonify(message="request id is required"), HTTPStatus.BAD_REQUEST
+
+
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload):
     jti = jwt_payload["jti"]

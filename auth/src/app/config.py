@@ -40,6 +40,11 @@ class RateLimit:
     TIME = 59
 
 
+class Jaeger:
+    PORT = os.getenv("JAEGER_PORT")
+    HOST = os.getenv("JAEGER_HOST")
+
+
 class Config:
     JWT: JWTConfig = JWTConfig()
     DB: DatabaseConfig = DatabaseConfig()
@@ -47,6 +52,7 @@ class Config:
     REDIS: RedisConfig = RedisConfig()
     APP: AppConfig = AppConfig()
     RATE_LIMIT: RateLimit = RateLimit()
+    JAEGER: Jaeger = Jaeger()
 
 
 get_config = Config()

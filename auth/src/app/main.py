@@ -11,10 +11,11 @@ from error import handle_exception
 from flask import Flask
 from jwt_extended import init_jwt
 from ma import init_ma
-from middlewares import init_rate_limit, init_token_check
+from middlewares import init_rate_limit, init_token_check, init_check_request_id
 from oauth import init_oauth
 from swagger import init_swagger
 from werkzeug.exceptions import HTTPException
+from jaeger_tracer import init_jaeger
 
 config = Config()
 
@@ -34,11 +35,13 @@ app.register_error_handler(HTTPException, handle_exception)
 init_oauth(app)
 init_rate_limit(app)
 init_token_check(app)
+init_check_request_id(app)
 init_db(app)
 init_datastore(app)
 init_ma(app)
 init_jwt(app)
 init_swagger(app)
+init_jaeger(app)
 
 app.app_context().push()
 
