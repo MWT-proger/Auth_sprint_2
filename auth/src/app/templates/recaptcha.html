@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ReCaptcha</title>
+</head>
+<body>
+<h1>{% if msg %}
+    Результат: {{ msg }}
+    {% endif %}</h1>
+<form method="POST">
+    {{ form.csrf_token }}
+    {{ form.recaptcha }}
+    <input type="submit" value="Submit">
+</form>
+<p>{{ message }}</p>
+</body>
+</html>

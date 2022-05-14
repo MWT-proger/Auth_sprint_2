@@ -7,6 +7,8 @@ from api.v1.swag import account as swag
 from flasgger import swag_from
 from flask import Blueprint, jsonify, render_template, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
+from flask_wtf import FlaskForm
+from flask_wtf import RecaptchaField
 from models import MultiFactorAuthentication
 from schemes.user import UserLoginSchema
 from services.account import get_account_service as account_service
@@ -111,6 +113,23 @@ def confirm_2fa():
 
     account_service.update_mf_auth(mf_auth=mf_auth, status=True)
     return jsonify(msg="2FA successfully connected")
+
+
+class ContactForm(FlaskForm):
+    recaptcha = RecaptchaField()
+
+
+@auth_api.route('/recaptcha', methods=['GET', 'POST'])
+def recaptcha():
+    """Метод просто, чтобы проверить работу Recaptcha"""
+    form = ContactForm()
+    message = ''
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            message = 'Спасибо за заполнение формы!'
+        else:
+            message = 'Пожалуйста, заполните ReCaptcha!'
+    return render_template('recaptcha.html', form=form, msg=message)
 
 
 auth_api.add_url_rule("/login", view_func=LoginView.as_view("login"), methods=["POST"])
