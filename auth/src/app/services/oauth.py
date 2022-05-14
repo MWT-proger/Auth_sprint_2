@@ -1,11 +1,12 @@
 import json
 import random
+from abc import ABC, abstractmethod
 
 from flask import current_app, redirect, request, session, url_for
 from rauth import OAuth1Service, OAuth2Service
 
 
-class OAuthSignIn(object):
+class OAuthSignIn(ABC):
     providers = None
 
     def __init__(self, provider_name):
@@ -14,9 +15,13 @@ class OAuthSignIn(object):
         self.consumer_id = credentials["id"]
         self.consumer_secret = credentials["secret"]
 
+    @property
+    @abstractmethod
     def authorize(self):
         pass
 
+    @property
+    @abstractmethod
     def callback(self):
         pass
 

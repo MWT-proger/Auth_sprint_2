@@ -5,7 +5,7 @@ import pyotp
 from api.v1.response_code import get_error_response as error_response
 from config import get_config as config
 from database import db
-from models import LoginHistory, MultiFactorAuthentication
+from models import LoginHistory, MultiFactorAuthentication, User
 from redis import Redis
 from redis_db import redis_conn
 from services.auth_token import get_auth_token_service as auth_token_service
@@ -47,7 +47,7 @@ class AccountService:
 
     def login(self,
               user_agent: str,
-              user=None,
+              user: User = None,
               login: str = None,
               password: str = None,
               code_2fa: str = None,

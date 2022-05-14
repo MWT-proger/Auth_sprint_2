@@ -47,27 +47,27 @@ class UserService:
         return new_user, False
 
     def create_oauth(self, login: str, email: str, social_id: str, social_name: str):
-        is_existed_email = self.get_by_email(email)
-        if is_existed_email:
-            while self.get_by_email(email):
-                name = generate.random_name(8)
-                email = f"{name}@mail.ru"
+        user_by_email = self.get_by_email(email)
+        if not user_by_email:
+            is_existed_login = self.get_by_login(login)
+            if is_existed_login:
+                while self.get_by_login(login):
+                    login = generate.random_name(8)
 
-        is_existed_login = self.get_by_login(login)
-        if is_existed_login:
-            while self.get_by_login(login):
-                login = generate.random_name(8)
+            password = generate.random_string()
+            # TODO Потом будем отправлять на почту пользователю
+            hashed_password = generate_password_hash(password)
 
-        password = generate.random_string()
-        # TODO Потом будем отправлять на почту пользователю
-        hashed_password = generate_password_hash(password)
         with session_scope() as session:
-            new_user = datastore.create_user(login=login, email=email, _password=hashed_password)
-            social_account = SocialAccount(user=new_user, social_id=social_id, social_name=social_name)
+            if not user_by_email:
+                user = datastore.create_user(login=login, email=email, _password=hashed_password)
+                datastore.add_role_to_user(user, RoleEnum.user.value)
+            else:
+                user = user_by_email
+            social_account = SocialAccount(user=user, social_id=social_id, social_name=social_name)
             session.add(social_account)
-            datastore.add_role_to_user(new_user, RoleEnum.user.value)
 
-        return new_user
+        return user
 
     def change_password(self, user_id: str, data: dict):
         password = data.get("_password")

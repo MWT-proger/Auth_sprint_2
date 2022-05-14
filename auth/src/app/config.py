@@ -45,6 +45,20 @@ class Jaeger:
     HOST = os.getenv("JAEGER_HOST")
 
 
+class Oauth:
+    YANDEX_ID = os.getenv("OAUTH_YANDEX_ID")
+    YANDEX_SECRET = os.getenv("OAUTH_YANDEX_SECRET")
+    MAIL_ID = os.getenv("OAUTH_MAIL_ID")
+    MAIL_SECRET = os.getenv("OAUTH_MAIL_SECRET")
+    VK_ID = os.getenv("OAUTH_VK_ID")
+    VK_SECRET = os.getenv("OAUTH_VK_SECRET")
+
+
+class ReCaptcha:
+    RECAPTCHA_PUBLIC_KEY = os.getenv("RECAPTCHA_PUBLIC_KEY")
+    RECAPTCHA_PRIVATE_KEY = os.getenv("RECAPTCHA_PRIVATE_KEY")
+
+
 class Config:
     JWT: JWTConfig = JWTConfig()
     DB: DatabaseConfig = DatabaseConfig()
@@ -53,6 +67,8 @@ class Config:
     APP: AppConfig = AppConfig()
     RATE_LIMIT: RateLimit = RateLimit()
     JAEGER: Jaeger = Jaeger()
+    OAUTH: Oauth = Oauth()
+    RECAPTCHA: ReCaptcha = ReCaptcha()
 
 
 get_config = Config()
