@@ -4,7 +4,7 @@ from api.v1.oauth import oauth_api
 from api.v1.response_code import bp_errors
 from api.v1.role import role_api
 from api.v1.user import user_api
-from config import Config
+from config import get_config as config
 from database import init_db
 from datastore import init_datastore
 from error import handle_exception
@@ -17,8 +17,6 @@ from oauth import init_oauth
 from swagger import init_swagger
 from werkzeug.exceptions import HTTPException
 from jaeger_tracer import init_jaeger
-
-config = Config()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config.APP.SECRET_KEY

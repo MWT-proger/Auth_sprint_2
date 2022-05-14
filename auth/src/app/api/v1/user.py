@@ -3,7 +3,7 @@ from api.v1.response_code import get_error_response as error_response
 from api.v1.swag import user as swag
 from api.v1.swag.role import add_role, get_user_role, remove_role
 from flasgger import swag_from
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from schemes.login_history import LoginHistorySchema
 from schemes.user import (UserChangePasswordSchema, UserRegisterSchema,
@@ -118,6 +118,12 @@ def delete_role(user_id, role_id):
 def get_login_history_view():
     current_user = get_jwt_identity()
 
+    page = request.args.get("page", default=1, type=int)
+    size = request.args.get("size", default=5, type=int)
+    since = page * size - size
+
     login_history, error = user_service.get_login_history(user_id=current_user)
 
-    return jsonify(LoginHistorySchema(many=True).dump(login_history))
+    docs = LoginHistorySchema(many=True).dump(login_history)
+
+    return jsonify(docs[since:since + size])
