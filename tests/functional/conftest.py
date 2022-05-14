@@ -51,7 +51,7 @@ def setup_database(db_conn):
     meta.bind = db_conn
     meta.create_all()
     yield
-    # meta.drop_all()
+    meta.drop_all()
 
 
 @pytest.fixture

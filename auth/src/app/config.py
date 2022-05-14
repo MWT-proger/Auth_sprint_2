@@ -36,7 +36,7 @@ class RedisConfig:
 
 
 class RateLimit:
-    MAX_CALLS = 10
+    MAX_CALLS = 1000
     TIME = 59
 
 
