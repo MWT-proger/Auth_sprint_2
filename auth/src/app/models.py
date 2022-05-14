@@ -84,6 +84,19 @@ class AuthToken(db.Model):
     refresh_token = db.Column(db.Text, nullable=False)
 
 
+def create_partition(target, connection, **kw) -> None:
+    """ creating partition by user_sign_in """
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "social_accounts_yandex" PARTITION OF "social_accounts" FOR VALUES IN ('yandex')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "social_accounts_mail" PARTITION OF "social_accounts" FOR VALUES IN ('mail')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "social_accounts_vk" PARTITION OF "social_accounts" FOR VALUES IN ('vk')"""
+    )
+
+
 class SocialAccount(db.Model):
     __tablename__ = "social_accounts"
 
@@ -92,9 +105,15 @@ class SocialAccount(db.Model):
     user = db.relationship(User, backref=db.backref("social_accounts", lazy=True))
 
     social_id = db.Column(db.String(255), nullable=False)
-    social_name = db.Column(db.String(255), nullable=False)
+    social_name = db.Column(db.String(255), nullable=False, primary_key=True)
 
-    __table_args__ = (db.UniqueConstraint("social_id", "social_name", name="social_uc"), )
+    __table_args__ = (db.UniqueConstraint("social_id", "social_name", name="social_uc"),
+                      db.UniqueConstraint("id", "social_name"),
+                      {
+                          'postgresql_partition_by': 'LIST (social_name)',
+                          'listeners': [('after_create', create_partition)],
+                      }
+                      )
 
     def __repr__(self):
         return f'<SocialAccount {self.social_name}:{self.user_id}>'
