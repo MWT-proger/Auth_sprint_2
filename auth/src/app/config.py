@@ -43,6 +43,7 @@ class RateLimit:
 class Jaeger:
     PORT = os.getenv("JAEGER_PORT")
     HOST = os.getenv("JAEGER_HOST")
+    IS_WORK = True
 
 
 class Config:

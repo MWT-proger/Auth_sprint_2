@@ -4,10 +4,11 @@ from api.v1.oauth import oauth_api
 from api.v1.response_code import bp_errors
 from api.v1.role import role_api
 from api.v1.user import user_api
-from config import Config
+from config import get_config as config
 from database import init_db
 from datastore import init_datastore
 from error import handle_exception
+from recaptcha import init_recaptcha
 from flask import Flask
 from jwt_extended import init_jwt
 from ma import init_ma
@@ -16,8 +17,6 @@ from oauth import init_oauth
 from swagger import init_swagger
 from werkzeug.exceptions import HTTPException
 from jaeger_tracer import init_jaeger
-
-config = Config()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config.APP.SECRET_KEY
@@ -33,6 +32,7 @@ app.register_error_handler(HTTPException, handle_exception)
 
 
 init_oauth(app)
+init_recaptcha(app)
 init_rate_limit(app)
 init_token_check(app)
 init_check_request_id(app)

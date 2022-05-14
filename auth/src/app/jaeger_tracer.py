@@ -4,9 +4,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
-from config import Config
-
-config = Config()
+from config import get_config as config
 
 
 def configure_tracer() -> None:
@@ -24,5 +22,6 @@ def configure_tracer() -> None:
 
 
 def init_jaeger(app: Flask):
-    configure_tracer()
-    FlaskInstrumentor().instrument_app(app)
+    if config.JAEGER.IS_WORK:
+        configure_tracer()
+        FlaskInstrumentor().instrument_app(app)

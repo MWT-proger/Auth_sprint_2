@@ -3,6 +3,26 @@
 Микросервис отвечает за авторизацию пользователя по API. 
 Планируетс работа в комплексе с разработанными ранее Админ панель, ETL и Async API Service.
 
+## За 7 спринт добавили
+
+1. Авторизацию через соц. сети (Mail, Yandex, VK)
+2. Двухфакторную авторизацию (TOTP)
+3. ReCaptcha
+4. Запрос у Auth на роль пользователя с FastAPI через Grpc
+5. В Auth трассировку и подключили к Jaeger U
+6. Ограничили количество запросов к серверу (Rate limit)
+
+**Авторизация через соц сети**
+[http://127.0.0.8/auth/api/v1/oauth/](http://127.0.0.8/auth/api/v1/oauth/)
+
+**Двухфакторную авторизацию**
+[http://127.0.0.8/auth/api/v1/2fa/add](http://127.0.0.8/auth/api/v1/2fa/add)
+[http://127.0.0.8/auth/api/v1/2fa/confirm](http://127.0.0.8/auth/api/v1/2fa/confirm)
+
+и дальше уже при входе будет требовать код с устройства
+
+**ReCaptcha**
+[http://127.0.0.8/auth/api/v1/recaptcha](http://127.0.0.8/auth/api/v1/recaptcha)
 
 ## Как развернуть и запустить проект
 **Используя Makefile**
@@ -47,4 +67,4 @@ docker-compose -f tests/functional/docker-compose.yml up
 ```
 
 --------------------
-**ссылка для ревью на GitHub**  [https://github.com/MWT-proger/Auth_sprint_1.git](https://github.com/MWT-proger/Auth_sprint_1.git)
+**ссылка для ревью на GitHub**  [https://github.com/MWT-proger/Auth_sprint_2.git](https://github.com/MWT-proger/Auth_sprint_2.git)

@@ -1,12 +1,10 @@
 import datetime
 from http import HTTPStatus
 
-from config import Config
+from config import get_config as config
 from flask import Flask, g, jsonify, request
 from jwt_extended import jwt
 from redis_db import redis_conn, redis_rate_limit
-
-config = Config()
 
 
 def init_token_check(app: Flask):

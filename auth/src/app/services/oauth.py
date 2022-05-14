@@ -1,7 +1,7 @@
 import json
 import random
 
-from flask import current_app, redirect, request, session, url_for
+from flask import current_app, redirect, request, url_for
 from rauth import OAuth1Service, OAuth2Service
 
 

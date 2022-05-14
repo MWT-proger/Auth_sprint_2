@@ -1,8 +1,7 @@
 from http import HTTPStatus
 
 from api.v1.response_code import get_error_response
-from flask import (Blueprint, jsonify, redirect, render_template, request,
-                   url_for)
+from flask import (Blueprint, jsonify, render_template, request)
 from models import SocialAccount
 from services.account import get_account_service as account_service
 from services.oauth import OAuthSignIn
