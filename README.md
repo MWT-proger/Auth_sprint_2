@@ -67,4 +67,4 @@ docker-compose -f tests/functional/docker-compose.yml up
 ```
 
 --------------------
-**ссылка для ревью на GitHub**  [https://github.com/MWT-proger/Auth_sprint_1.git](https://github.com/MWT-proger/Auth_sprint_1.git)
+**ссылка для ревью на GitHub**  [https://github.com/MWT-proger/Auth_sprint_2.git](https://github.com/MWT-proger/Auth_sprint_2.git)
